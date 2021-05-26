@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using StreamingClient.Base.Util;
 using Twitch.Base;
 using Twitch.Base.Clients;
@@ -64,6 +65,7 @@ namespace MultiChatServer.chat {
                     if (twitchAPI != null) {
                         Logger.Trace("Twitch connection successful!");
 
+                        UserModel chatUser = await twitchAPI.NewAPI.Users.GetUserByLogin(twitchName);
                         user = await twitchAPI.NewAPI.Users.GetCurrentUser();
                         if (user != null) {
                             Logger.Trace("Logged in as: " + user.display_name);
@@ -146,15 +148,6 @@ namespace MultiChatServer.chat {
 
         private static void PubSub_OnResponseReceived(object sender, PubSubResponsePacketModel packet) {
             Logger.Trace("RESPONSE: " + packet.error);
-        }
-
-        private static void PubSub_OnMessageReceived(object sender, PubSubMessagePacketModel packet) {
-            Logger.Trace(string.Format("MESSAGE: {0} {1} ", packet.type, packet.message));
-            if (packet.type == "MESSAGE") {
-                if (packet.topicType == PubSubTopicsEnum.ChannelSubscriptionsV1) {
-                    
-                }
-            }
         }
 
         private static void PubSub_OnWhisperReceived(object sender, PubSubWhisperEventModel whisper) {
@@ -243,5 +236,48 @@ namespace MultiChatServer.chat {
         public override long getViewerCount() {
             return currentUserList.Count;
         }
+
+        private void PubSub_OnMessageReceived(object sender, PubSubMessagePacketModel packet) {
+            Logger.Trace(string.Format("MESSAGE: {0} {1} ", packet.type, packet.message));
+            if (packet.type == "MESSAGE") {
+                if (packet.topicType == PubSubTopicsEnum.ChannelSubscriptionsV1) {
+                    processSubscriptionMessage(packet.message);
+                }
+            }
+        }
+
+        public void processSubscriptionMessage(string msg) {
+            Logger.Trace("SubMessage: <" + msg + ">");
+            // JObject jsonData = JObject.Parse(msg);
+            // JToken message = jsonData.Value<JToken>("message");
+        }
     }
 }
+
+
+/* Sub Message
+"message": {
+      "user_name": "tww2",
+      "display_name": "TWW2",
+      "channel_name": "mr_woodchuck",
+      "user_id": "13405587",
+      "channel_id": "89614178",
+      "time": "2015-12-19T16:39:57-08:00",
+      "sub_plan": "1000",
+      "sub_plan_name": "Channel Subscription (mr_woodchuck)",
+      "cumulative_months": 9,
+      "streak_months": 3,
+      "context": "resub",
+      "is_gift": false,
+      "sub_message": {
+        "message": "A Twitch baby is born! KappaHD",
+        "emotes": [
+          {
+            "start": 23,
+            "end": 7,
+            "id": 2867
+          }
+        ]
+      }
+    }
+*/

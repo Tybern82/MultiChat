@@ -48,10 +48,12 @@ function appendChatMessage(msg) {
 
     div.classList = "chat";
 
+    uname.style.marginLeft = "5px";
     uname.innerText = msg.sender.displayname + ": ";
     uname.classList = "username";
     if (msg.sender.color !== "") {
-        uname.style = "color: " + msg.sender.color + ";";
+        uname.style.color = msg.sender.color;
+        // uname.style = "color: " + msg.sender.color + ";";
     }
 
     for (const item of msg.emotes) {
