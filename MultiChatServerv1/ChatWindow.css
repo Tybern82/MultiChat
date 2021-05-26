@@ -1,0 +1,32 @@
+﻿img {
+    height: 2ex;
+    width: auto;
+    vertical-align: middle;
+}
+
+body {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    overflow: hidden;
+    text-shadow: 1.5px 1.5px rgba(0, 0, 0, 0.3);
+    overflow-wrap: break-word;
+}
+
+div.chat {
+    background-color: rgb(40,48,70);
+}
+
+.right-align {
+    text-align: right;
+    padding-right: 15px;
+}
+
+.message {
+    padding-left: .5ch;
+}
+
+.badge {
+    padding-left: .25ch;
+}
