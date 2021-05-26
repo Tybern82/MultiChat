@@ -8,8 +8,8 @@
 Parameters to link chats:
 
     --brime      (Default: none) Brime login name
-    --trovo      (Default: none) Trovo login name
-    --twitch     (Default: none) Twitch login name
+    --trovo      (Default: false) Add Trovo chat (uses authenticated user)
+    --twitch     (Default: false) Add Twitch chat (uses authenticated user)
     --youtube    (Default: false) Activate YouTube connection
     --verbose    (Default: false) Prints all messages to standard output.
     --help       Display this help screen.
