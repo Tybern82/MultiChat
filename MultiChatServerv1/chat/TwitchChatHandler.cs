@@ -53,10 +53,11 @@ namespace MultiChatServer.chat {
 
             Task.Run(async () => {
                 try {
-
+                    /*
                     using (StreamWriter writer = new StreamWriter(File.Open("Packets.txt", FileMode.Create))) {
                         await writer.FlushAsync();
                     }
+                    */
                     Logger.Info("Connecting to Twitch <" + twitchName + ">");
 
                     twitchAPI = await TwitchConnection.ConnectViaLocalhostOAuthBrowser(clientID, clientSecret, scopes);
@@ -223,11 +224,11 @@ namespace MultiChatServer.chat {
             Logger.Trace("SEND: " + packet);
         }
 
-        private static async void Chat_OnPacketReceived(object sender, ChatRawPacketModel packet) {
+        private static void Chat_OnPacketReceived(object sender, ChatRawPacketModel packet) {
             if (!packet.Command.Equals("PING") && !packet.Command.Equals(ChatMessagePacketModel.CommandID) && !packet.Command.Equals(ChatUserJoinPacketModel.CommandID)
                  && !packet.Command.Equals(ChatUserLeavePacketModel.CommandID)) {
                 Logger.Trace("PACKET: " + packet.Command);
-
+                /*
                 await semaphore.WaitAndRelease(async () => {
                     using (StreamWriter writer = new StreamWriter(File.Open("Packets.txt", FileMode.Append))) {
                         await writer.WriteLineAsync(JSONSerializerHelper.SerializeToString(packet));
@@ -235,6 +236,7 @@ namespace MultiChatServer.chat {
                         await writer.FlushAsync();
                     }
                 });
+                */
             }
         }
 

@@ -40,7 +40,8 @@ namespace MultiChatServer {
                         path = path.Split(new char[] { '?' }, StringSplitOptions.None)[0];
                         if (path.Equals("")) path = "ChatWindow.html";    // default page
                         string? appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-                        if (appPath == null) appPath = "./";
+                        if (appPath == null) appPath = "./web/";
+                        appPath = Path.Combine(appPath, "web");
                         string fname = Path.Combine(appPath, path);
                         Logger.Trace(() => { return string.Format("Requested File: <{0}>", path); });
                         if (!File.Exists(fname)) {
