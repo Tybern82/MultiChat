@@ -47,10 +47,10 @@ namespace MultiChatServer.chat {
         private static ChatClient? chat;
         private static SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private static List<string> currentUserList = new List<string>();
-        private string TwitchName { get; set; }
+        // private string TwitchName { get; set; }
 
-        public TwitchChatHandler(string twitchName, ChatServer server) : base(server) {
-            this.TwitchName = twitchName;
+        public TwitchChatHandler(ChatServer server) : base(server) {
+            // this.TwitchName = twitchName;
 
             Task.Run(async () => {
                 try {
@@ -59,18 +59,17 @@ namespace MultiChatServer.chat {
                         await writer.FlushAsync();
                     }
                     */
-                    Logger.Info("Connecting to Twitch <" + twitchName + ">");
+                    Logger.Info("Connecting to Twitch...");
 
                     twitchAPI = await TwitchConnection.ConnectViaLocalhostOAuthBrowser(clientID, clientSecret, scopes);
                     if (twitchAPI != null) {
-                        Logger.Trace("Twitch connection successful!");
+                        Logger.Info("Twitch connection successful!");
 
-                        UserModel chatUser = await twitchAPI.NewAPI.Users.GetUserByLogin(twitchName);
+                        // UserModel chatUser = await twitchAPI.NewAPI.Users.GetUserByLogin(twitchName);
                         user = await twitchAPI.NewAPI.Users.GetCurrentUser();
                         if (user != null) {
-                            Logger.Trace("Logged in as: " + user.display_name);
-
-                            Logger.Trace("Connecting to Chat...");
+                            Logger.Info("Logged in as: " + user.display_name);
+                            Logger.Info("Connecting to Chat...");
 
                             pubSub = new PubSubClient(twitchAPI);
 

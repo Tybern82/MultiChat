@@ -64,11 +64,11 @@ namespace MultiChatConsole {
         [Option("brime", Required = false, HelpText = "Brime login name", Default = "")]
         public string BrimeName { get; set; } = "";
 
-        [Option("trovo", Required = false, HelpText = "Trovo login name", Default = "")]
-        public string TrovoName { get; set; } = "";
+        [Option("trovo", Required = false, HelpText = "Add Trovo chat", Default = false)]
+        public bool TrovoName { get; set; } = false;
 
-        [Option("twitch", Required = false, HelpText = "Twitch login name", Default = "")]
-        public string TwitchName { get; set; } = "";
+        [Option("twitch", Required = false, HelpText = "Add Twitch chat", Default = false)]
+        public bool TwitchName { get; set; } = false;
 
         [Option("youtube", Required = false, HelpText = "Activate YouTube connection", Default = false)]
         public bool AddYoutube { get; set; } = false;

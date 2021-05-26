@@ -105,11 +105,12 @@ namespace MultiChatServer {
             "   </body>\n" +
             "</html>\n";
 
-        public void Start(string brimeName, string twitchName, string trovoName, bool hasYoutube) {
+        public void Start(string brimeName, bool hasTwitch, bool hasTrovo, bool hasYoutube) {
             if (RunServer) return;  // already running
             RunServer = true;
             Task.Run(() => {
                 this.listener = new HttpListener();
+                // TODO: Support changing Port - suggestion by Brime/Pimpek
                 listener.Prefixes.Add("http://localhost:8080/");
                 listener.Start();
 
@@ -122,8 +123,8 @@ namespace MultiChatServer {
                 server = new WatsonWsServer("localhost", 8081, false);
 
                 if (!string.IsNullOrWhiteSpace(brimeName)) handlers.Add(new BrimeChatHandler(brimeName, this));
-                if (!string.IsNullOrWhiteSpace(twitchName)) handlers.Add(new TwitchChatHandler(twitchName, this));
-                if (!string.IsNullOrWhiteSpace(trovoName)) handlers.Add(new TrovoChatHandler(trovoName, this));
+                if (hasTwitch) handlers.Add(new TwitchChatHandler(this));
+                if (hasTrovo) handlers.Add(new TrovoChatHandler(this));
                 if (hasYoutube) handlers.Add(new YoutubeChatHandler(this));
                 server.ClientConnected += onClientConnected;
                 server.ClientDisconnected += onClientDisconnected;

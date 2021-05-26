@@ -37,33 +37,33 @@ namespace MultiChatServer.chat {
 
         private ChatClient? chat;
 
-        public string TrovoName { get; set; }
+        // public string TrovoName { get; set; }
 
-        public TrovoChatHandler(string trovoName, ChatServer server) : base(server) {
-            this.TrovoName = trovoName; 
+        public TrovoChatHandler(ChatServer server) : base(server) {
+            // this.TrovoName = trovoName; 
             Task.Run(async () => {
                 try {
-                    Logger.Info("Connecting to Trovo <" + trovoName + ">");
+                    Logger.Info("Connecting to Trovo...");
                     
                     connection = await TrovoConnection.ConnectViaLocalhostOAuthBrowser(clientID, scopes);
                     if (connection != null) {
-                        Logger.Trace("Trovo connection successful!");
+                        Logger.Info("Trovo connection successful!");
 
                         PrivateUserModel user = await connection.Users.GetCurrentUser();
                         if (user != null) {
-                            Logger.Trace("Current User: " + user.userName);
+                            Logger.Info("Current User: " + user.userName);
 
                             PrivateChannelModel channel = await connection.Channels.GetCurrentChannel();
                             if (channel != null) {
-                                Logger.Trace("Channel Title: " + channel.live_title);
+                                Logger.Info("Channel Title: " + channel.live_title);
 
                                 chat = new ChatClient(connection);
                                 chat.OnChatMessageReceived += Chat_OnChatMessageReceived;
 
-                                Logger.Trace("Connecting to chat...");
+                                Logger.Info("Connecting to chat...");
                                 if (await chat.Connect(await connection.Chat.GetToken())) {
                                     isConnected = true;
-                                    Logger.Trace("Successfully connected to chat!");
+                                    Logger.Info("Successfully connected to chat!");
                                 }
                             }
                         }
