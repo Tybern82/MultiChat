@@ -39,17 +39,15 @@ namespace MultiChatServer.chat {
                         Channel channel = await connection.Channels.GetMyChannel();
                         if (channel != null) {
                             Logger.Trace("Connection successful. Logged in as: " + channel.Snippet.Title);
-
                             Logger.Trace("Connecting chat client!");
 
                             ChatClient client = new ChatClient(connection);
                             client.OnMessagesReceived += Client_OnMessagesReceived;
                             if (await client.Connect()) {
-                                System.Console.WriteLine("Live chat connection successful!");
-
+                                Logger.Info("Live chat connection successful!");
                                 isConnected = true;
                             } else {
-                                Logger.Trace("Failed to connect to live chat");
+                                Logger.Info("Failed to connect to live chat");
                             }
                         }
                     }
@@ -61,6 +59,14 @@ namespace MultiChatServer.chat {
 
         public override long getViewerCount() {
             return 0;
+        }
+
+        public override void updateCategory(string category) {
+            
+        }
+
+        public override void updateTitle(string title) {
+            
         }
 
         private void Client_OnMessagesReceived(object sender, IEnumerable<LiveChatMessage> messages) {

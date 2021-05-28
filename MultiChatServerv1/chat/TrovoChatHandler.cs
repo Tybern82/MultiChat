@@ -98,5 +98,17 @@ namespace MultiChatServer.chat {
             }
             return lastViewCount;
         }
+
+        public override void updateCategory(string category) {
+            if (connection == null) return;
+            PrivateChannelModel channel = connection.Channels.GetCurrentChannel().Result;
+            channel.category_name = category;
+        }
+
+        public override void updateTitle(string title) {
+            if (connection == null) return;
+            PrivateChannelModel channel = connection.Channels.GetCurrentChannel().Result;
+            channel.live_title = title;
+        }
     }
 }

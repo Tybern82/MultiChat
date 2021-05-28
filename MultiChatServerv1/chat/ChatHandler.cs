@@ -33,7 +33,7 @@ namespace MultiChatServer.chat {
                 JsonConvert.ToString(sender),   // msg.Sender.DisplayName
                 JsonConvert.ToString(color),         // msg.sender.color
                 JSONUtil.ToString(badges),                      // msg.Sender.Badges (array of img link)
-                JSONUtil.ToString(emotes),               // msg.Emotes
+                emotes.MakeJSONArray(),               // msg.Emotes
                 JsonConvert.ToString(message),
                 JsonConvert.ToString(Timeout)                   // default 30s timeout
                 );
@@ -54,5 +54,9 @@ namespace MultiChatServer.chat {
         }
 
         public abstract long getViewerCount();
+
+        public abstract void updateCategory(string category);
+
+        public abstract void updateTitle(string title);
     }
 }

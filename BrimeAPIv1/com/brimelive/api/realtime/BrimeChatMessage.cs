@@ -30,12 +30,22 @@ namespace BrimeAPI.com.brimelive.api.realtime {
 
             JToken? emotes = message["emotes"];
             if (emotes != null) {
-                // foreach (JToken item in emotes) {
+                foreach (JToken item in emotes) {
+                    if (item != null) {
+                        JProperty? prop = item.ToObject<JProperty>();
+                        if (prop != null) {
+                            string name = prop.Name;
+                            string? id = prop.Value.Value<string>("_id");
+                            if (id != null) {
+                                Emotes.Add(name, new BrimeChatEmote(id));
+                            }
+                        }
+                    }
                     // Console.WriteLine(item.ToString());
 
                     // string? name = item.Value<string>("name");
                     // string? id = item.Value<string>("_id");
-                // }
+                }
             }
             // TODO: Add Sender and Emotes
         }

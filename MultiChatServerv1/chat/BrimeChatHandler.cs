@@ -29,6 +29,14 @@ namespace MultiChatServer.chat {
             return (BrimeAPI == null ? 0 : BrimeAPI.ViewCountTracker.ViewCount);
         }
 
+        public override void updateCategory(string category) {
+            // TODO: Need Client-ID to set
+        }
+
+        public override void updateTitle(string title) {
+            // TODO: Need Client-ID to set
+        }
+
 
         public void onOpen() { }
 
@@ -42,12 +50,19 @@ namespace MultiChatServer.chat {
 
         public void onLeave(string username) { }
 
+        private static readonly string EMOTE_FORMAT = "{{ \"name\": \"{0}\", \"link\": \"{1}\" }}";
+
         public void onChat(BrimeChatMessage chatMessage) {
             string[] badges = new string[chatMessage.Sender.Badges.Count + 1];
             badges[0] = "http://localhost:8080/BrimeLogo.png";
             chatMessage.Sender.Badges.ToArray().CopyTo(badges, 1);
 
-            doChatMessage(chatMessage.Sender.DisplayName, chatMessage.Message, new string[0], badges, chatMessage.Sender.Color);
+            List<string> emotes = new List<string>(chatMessage.Emotes.Count);
+            foreach (string e in chatMessage.Emotes.Keys) {
+                emotes.Add(string.Format(EMOTE_FORMAT, e, chatMessage.Emotes[e].get1xImageUrl()));
+            }
+
+            doChatMessage(chatMessage.Sender.DisplayName, chatMessage.Message, emotes.ToArray(), badges, chatMessage.Sender.Color);
         }
 
         public void onSubscribe(string username, string userId, bool isResub) {

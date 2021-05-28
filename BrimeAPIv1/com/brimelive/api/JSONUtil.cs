@@ -91,6 +91,22 @@ namespace BrimeAPI.com.brimelive.api {
         }
 
         /// <summary>
+        /// Collect given set of items into an array. Assumes the items in the array are already valid JSON entries.
+        /// </summary>
+        /// <param name="items">array of JSON items</param>
+        /// <returns>[ item[0], item[1],... item[n] ]</returns>
+        public static string MakeJSONArray(this string[] items) {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("[");
+            if (items.Length > 0) _result.Append(items[0]);
+            for (int i = 1; i < items.Length; i++) {
+                _result.Append(", ").Append(items[i]);
+            }
+            _result.Append("]");
+            return _result.ToString();
+        }
+
+        /// <summary>
         /// Convert the given <c>bool</c> value to its JSON equivalent
         /// </summary>
         /// <param name="b">value to process</param>

@@ -13,14 +13,16 @@ using Twitch.Base.Clients;
 using Twitch.Base.Models.Clients.Chat;
 using Twitch.Base.Models.Clients.PubSub;
 using Twitch.Base.Models.Clients.PubSub.Messages;
+using Twitch.Base.Models.NewAPI.Games;
+using Twitch.Base.Models.NewAPI.Streams;
 using Twitch.Base.Models.NewAPI.Users;
 
 namespace MultiChatServer.chat {
     public class TwitchChatHandler : ChatHandler {
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private const string clientID = "xm067k6ffrsvt8jjngyc9qnaelt7oo";
-        private const string clientSecret = "jtzezlc6iuc18vh9dktywdgdgtu44b";
+        private const string clientID = "yodb4mx7oif8l4un9jyd7uw6qhz8gn"; // "xm067k6ffrsvt8jjngyc9qnaelt7oo";
+        private const string clientSecret = "bisw82ht2igcviud9wm5xtaa123v8u"; // "jtzezlc6iuc18vh9dktywdgdgtu44b";
 
         private static readonly List<OAuthClientScopeEnum> scopes = new List<OAuthClientScopeEnum>() {
             OAuthClientScopeEnum.channel_commercial,
@@ -54,11 +56,6 @@ namespace MultiChatServer.chat {
 
             Task.Run(async () => {
                 try {
-                    /*
-                    using (StreamWriter writer = new StreamWriter(File.Open("Packets.txt", FileMode.Create))) {
-                        await writer.FlushAsync();
-                    }
-                    */
                     Logger.Info("Connecting to Twitch...");
 
                     twitchAPI = await TwitchConnection.ConnectViaLocalhostOAuthBrowser(clientID, clientSecret, scopes);
@@ -177,7 +174,7 @@ namespace MultiChatServer.chat {
             currentUserList.Remove(packet.UserLogin);
         }
 
-        private static readonly string EMOTE_FORMAT = "{{ \"name\": {0}, \"link\": https://static-cdn.jtvnw.net/emoticons/v2/{1}/default/dark/1.0 }}";
+        private static readonly string EMOTE_FORMAT = "{{ \"name\": \"{0}\", \"link\": \"https://static-cdn.jtvnw.net/emoticons/v2/{1}/default/dark/1.0\" }}";
 
         private void Chat_OnMessageReceived(object sender, ChatMessagePacketModel packet) {
             List<string> emotes = new List<string>();
@@ -208,8 +205,9 @@ namespace MultiChatServer.chat {
             if (chat != null) await chat.Pong();
         }
 
-        private static void Chat_OnDisconnectOccurred(object sender, System.Net.WebSockets.WebSocketCloseStatus e) {
+        private void Chat_OnDisconnectOccurred(object sender, System.Net.WebSockets.WebSocketCloseStatus e) {
             Logger.Trace("DISCONNECTED");
+            isConnected = false;
         }
 
         private static void Chat_OnSentOccurred(object sender, string packet) {
@@ -220,20 +218,29 @@ namespace MultiChatServer.chat {
             if (!packet.Command.Equals("PING") && !packet.Command.Equals(ChatMessagePacketModel.CommandID) && !packet.Command.Equals(ChatUserJoinPacketModel.CommandID)
                  && !packet.Command.Equals(ChatUserLeavePacketModel.CommandID)) {
                 Logger.Trace("PACKET: " + packet.Command);
-                /*
-                await semaphore.WaitAndRelease(async () => {
-                    using (StreamWriter writer = new StreamWriter(File.Open("Packets.txt", FileMode.Append))) {
-                        await writer.WriteLineAsync(JSONSerializerHelper.SerializeToString(packet));
-                        await writer.WriteLineAsync();
-                        await writer.FlushAsync();
-                    }
-                });
-                */
             }
         }
 
         public override long getViewerCount() {
             return currentUserList.Count;
+        }
+
+        public override void updateCategory(string category) {
+            if ((twitchAPI == null) || (user == null)) return;
+            var streams = twitchAPI.NewAPI.Streams.GetStreamsByUserIDs(new string[] { user.id }).Result;
+            IEnumerable<GameModel> games = twitchAPI.NewAPI.Games.GetGamesByName(category).Result;
+            if ((games == null) || (games.Count() == 0)) return;  // no valid game found
+            foreach (var s in streams) {
+                s.game_id = games.First().id;
+            }
+        }
+
+        public override void updateTitle(string title) {
+            if ((twitchAPI == null) || (user == null)) return;
+            var streams = twitchAPI.NewAPI.Streams.GetStreamsByUserIDs(new string[] { user.id }).Result;
+            foreach (StreamModel s in streams) {
+                s.title = title;
+            }
         }
 
         private void PubSub_OnMessageReceived(object sender, PubSubMessagePacketModel packet) {

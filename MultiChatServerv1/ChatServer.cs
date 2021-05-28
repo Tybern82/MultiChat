@@ -60,9 +60,9 @@ namespace MultiChatServer {
                 }
                 resp.Close();
             }
-
             server?.Stop();
         }
+
         private void SendErrorResponse(HttpListenerResponse response, int statusCode, string statusResponse, string reqName) {
             response.StatusCode = statusCode;
             if (statusCode != 404) {
@@ -131,6 +131,20 @@ namespace MultiChatServer {
                 // Chatbot = new MergedChatbot(brimeName, twitchName, server);
                 server.Start();
             });
+        }
+
+        public void updateTitle(string title) {
+            Logger.Trace("Updating stream titles: <" + title + ">");
+            foreach (ChatHandler h in handlers) {
+                if (h.isConnected) h.updateTitle(title);
+            }
+        }
+
+        public void updateCategory(string category) {
+            Logger.Trace("Updating stream category: <" + category + ">");
+            foreach (ChatHandler h in handlers) {
+                if (h.isConnected) h.updateCategory(category);
+            }
         }
 
         private List<ChatHandler> handlers = new List<ChatHandler>();
