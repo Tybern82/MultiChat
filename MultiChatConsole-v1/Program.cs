@@ -20,7 +20,7 @@ namespace MultiChatConsole {
             ChatServer chatServer = new ChatServer();
 
             SetNlogLogLevel(opts.Verbose ? NLog.LogLevel.Trace : NLog.LogLevel.Info);
-            chatServer.Start(opts.BrimeName, opts.TwitchName, opts.TrovoName, opts.AddYoutube);
+            chatServer.Start(opts.BrimeName, opts.ConnectTwitch, opts.ConnectTrovo, opts.ConnectYouTube);
 
             Console.WriteLine("Open http://localhost:8080/ to view combined chat");
             Console.WriteLine("Open http://localhost:8080/Notifications.html to view notification information");
@@ -74,19 +74,19 @@ namespace MultiChatConsole {
                 log.Error(i.ToString());
         }
     }
-    class Options {
+    public class Options {
 
         [Option("brime", Required = false, HelpText = "Brime login name", Default = "")]
         public string BrimeName { get; set; } = "";
 
         [Option("trovo", Required = false, HelpText = "Add Trovo chat", Default = false)]
-        public bool TrovoName { get; set; } = false;
+        public bool ConnectTrovo { get; set; } = false;
 
         [Option("twitch", Required = false, HelpText = "Add Twitch chat", Default = false)]
-        public bool TwitchName { get; set; } = false;
+        public bool ConnectTwitch { get; set; } = false;
 
         [Option("youtube", Required = false, HelpText = "Activate YouTube connection", Default = false)]
-        public bool AddYoutube { get; set; } = false;
+        public bool ConnectYouTube { get; set; } = false;
 
         // Omitting long name, defaults to name of property, ie "--verbose"
         [Option(

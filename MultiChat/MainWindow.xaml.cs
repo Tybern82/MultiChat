@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using MultiChat.Helper;
 using MultiChatServer;
 using NLog;
 using NLog.Config;
 using NLog.Targets.Wrappers;
+using IniParser;
+using System.IO;
+using System.Diagnostics;
+using System;
 
 namespace MultiChat {
     /// <summary>
@@ -28,6 +20,23 @@ namespace MultiChat {
         public MainWindow() {
             InitializeComponent();
             logger.Trace("Initialized Main Window");
+            try {
+                FileIniDataParser parser = new FileIniDataParser();
+                string? appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                if (appPath == null) appPath = "./";
+                string fname = Path.Combine(appPath, "MultiChat.ini");
+                IniParser.Model.IniData data = parser.ReadFile(fname);
+                string name = data["MultiChat"]["BrimeName"];
+                string id = data["MultiChat"]["BrimeChannelID"];
+                bool connTwitch = bool.Parse(data["MultiChat"]["ConnectTwitch"]);
+                bool connTrovo = bool.Parse(data["MultiChat"]["ConnectTrovo"]);
+                bool connYoutube = bool.Parse(data["MultiChat"]["ConnectYouTube"]);
+                txtChannelName.Text = name;
+                txtChannelID.Text = id;
+                chkTwitch.IsChecked = connTwitch;
+                chkTrovo.IsChecked = connTrovo;
+                chkYoutube.IsChecked = connYoutube;
+            } catch (Exception) {}
         }
 
         private ChatServer chatServer;
@@ -126,6 +135,21 @@ namespace MultiChat {
 
         private void btnClose_Click(object sender, RoutedEventArgs e) {
             if (chatServer != null) chatServer.RunServer = false;
+
+            try {
+                FileIniDataParser parser = new FileIniDataParser();
+                string? appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                if (appPath == null) appPath = "./";
+                string fname = Path.Combine(appPath, "MultiChat.ini");
+                IniParser.Model.IniData data = new IniParser.Model.IniData();
+                data["MultiChat"]["BrimeName"] = txtChannelName.Text;
+                data["MultiChat"]["BrimeChannelID"] = txtChannelID.Text;
+                data["MultiChat"]["ConnectTwitch"] = chkTwitch.IsChecked.ToString();
+                data["MultiChat"]["ConnectTrovo"] = chkTrovo.IsChecked.ToString();
+                data["MultiChat"]["ConnectYouTube"] = chkYoutube.IsChecked.ToString();
+                parser.WriteFile(fname, data, System.Text.Encoding.UTF8);
+            } catch (Exception) {}
+
             wndMain.Close();
             Application.Current.Shutdown();
         }
