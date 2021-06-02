@@ -143,7 +143,7 @@ namespace MultiChatServer {
                 if (hasYoutube) handlers.Add(new YoutubeChatHandler(this));
                 server.ClientConnected += onClientConnected;
                 server.ClientDisconnected += onClientDisconnected;
-                isConnected = true;
+                IsConnected = true;
                 // Chatbot = new MergedChatbot(brimeName, twitchName, server);
                 server.Start();
             });
@@ -172,31 +172,35 @@ namespace MultiChatServer {
         private List<ChatHandler> handlers = new List<ChatHandler>();
         public bool ForceViewUpdate { get; private set; }
         protected static readonly string VIEW_FORMAT = "{{\"type\": \"VIEWERCOUNT\", \"viewerCount\": {0} }}";
-        private bool isConnected = false;
+        private bool isRunningViewCount = false;
 
         public void onClientConnected(object? sender, ClientConnectedEventArgs args) {
             Logger.Trace(() => { return string.Format("Connecting client: <{0}>", args.IpPort); });
             lock (this) {
-                if (!isConnected) {
-                    isConnected = true;
+                if (!isRunningViewCount) {
+                    isRunningViewCount = true;
                     Thread t = new Thread(new ThreadStart(() => {
                         long lastViewCount = 0;
                         int updateCount = 15;
                         int loopCount = 0;
                         while (true) {
-                            long viewCount = 0;
-                            foreach (ChatHandler h in handlers) {
-                                // Make sure this connection has completed loading 
-                                if (h.isConnected) viewCount += h.getViewerCount();
+                            try {
+                                long viewCount = 0;
+                                foreach (ChatHandler h in handlers) {
+                                    // Make sure this connection has completed loading 
+                                    if (h.isConnected) viewCount += h.getViewerCount();
+                                }
+                                if (ForceViewUpdate || (viewCount != lastViewCount)) {
+                                    send(string.Format(VIEW_FORMAT, JsonConvert.ToString(viewCount)));
+                                    lastViewCount = viewCount;
+                                    ForceViewUpdate = false;
+                                }
+                                loopCount++;
+                                loopCount = loopCount % updateCount;
+                                Thread.Sleep(2000);
+                            } catch (Exception e) {
+                                Logger.Trace(e.ToString());
                             }
-                            if (ForceViewUpdate || (viewCount != lastViewCount)) {
-                                send(string.Format(VIEW_FORMAT, JsonConvert.ToString(viewCount)));
-                                lastViewCount = viewCount;
-                                ForceViewUpdate = false;
-                            }
-                            loopCount++;
-                            loopCount = loopCount % updateCount;
-                            Thread.Sleep(2000);
                         }
                     }));
                     t.IsBackground = true;
