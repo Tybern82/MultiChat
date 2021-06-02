@@ -36,6 +36,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>tybern_discord_emote_128px_nVf_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>MultiChat.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.7.10\lib\net45\NLog.dll</HintPath>
@@ -137,6 +143,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Helper\README_NLog_WpfRichTextBox.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="tybern_discord_emote_128px_nVf_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
