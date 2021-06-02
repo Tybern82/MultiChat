@@ -39,6 +39,7 @@ namespace MultiChatServer.chat {
                         Channel channel = await connection.Channels.GetMyChannel();
                         if (channel != null) {
                             Logger.Trace("Connection successful. Logged in as: " + channel.Snippet.Title);
+                            server.YoutubeName.Invoke(channel.Snippet.Title);
                             Logger.Trace("Connecting chat client!");
 
                             ChatClient client = new ChatClient(connection);

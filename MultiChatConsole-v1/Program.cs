@@ -29,7 +29,22 @@ namespace MultiChatConsole {
             Console.WriteLine("         ?nofade   = ignore message fading (disconnect message will still auto-fade)");
             Console.WriteLine();
             Console.WriteLine("Type QUIT to close (case-insensitive)");
-            while (!Console.ReadLine().Trim().Equals("quit", StringComparison.InvariantCultureIgnoreCase)) ;
+            bool isRunning = true;
+            while (isRunning) {
+                string line = Console.ReadLine().Trim();
+                isRunning = !line.StartsWith("quit", StringComparison.InvariantCultureIgnoreCase);
+                if (isRunning) {
+                    // didn't get QUIT message, check for other commands
+                    if (line.StartsWith("title", StringComparison.InvariantCultureIgnoreCase)) {
+                        string title = line.Substring(6);
+                        chatServer.updateTitle(title);
+                    } else if (line.StartsWith("game", StringComparison.InvariantCultureIgnoreCase)) {
+                        string category = line.Substring(5);
+                        chatServer.updateCategory(category);
+                    }
+                }
+            }
+            // while (!Console.ReadLine().Trim().Equals("quit", StringComparison.InvariantCultureIgnoreCase)) ;
             chatServer.RunServer = false;
         }
 

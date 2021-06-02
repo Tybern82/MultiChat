@@ -104,6 +104,7 @@ namespace BrimeAPI.com.brimelive.api.realtime {
                 }
             });
 
+            // Deprecated
             channel.Subscribe((message) => {
                 // onChat
                 if (message.Name == "greeting") {
@@ -113,6 +114,16 @@ namespace BrimeAPI.com.brimelive.api.realtime {
                 } else {
                     Logger.Trace("Message Name: " + message.Name);
                 }
+                /* TODO: Needs ChannelID, so will need Client-ID to use
+                switch (message.Name) {
+                    case "chat":    // updated chat messages
+                        Logger.Trace("Chat Data: " + message.Data);
+                        break;
+                    case "delete":  // delete message
+                        Logger.Trace("Delete Data: " + message.Data);
+                        break;
+                }
+                */
             });
         }
 
@@ -136,3 +147,26 @@ namespace BrimeAPI.com.brimelive.api.realtime {
         }
     }
 }
+
+/*
+need to use the new ably endpoint, "channelId/chat"
+here's the new payloads schema for the new endpoint:
+chat:
+{
+  _id: String,
+  channelID: String,
+  sender: User,
+  message: String,
+  richContents: String, // Used by brimebot.
+  emotes: Emote[],
+  timestamp: Number
+}
+
+delete:
+{
+  _id: String,
+  messageID: String
+}
+[3:48 AM]
+use the ably name field to get the type of message
+*/

@@ -1,0 +1,94 @@
+﻿<Window x:Name="wndMain" x:Class="MultiChat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MultiChat"
+        mc:Ignorable="d" Height="450" Width="800" SizeToContent="WidthAndHeight" MinWidth="500" Title="Multi-Chat" Loaded="wndMain_Loaded">
+    <Grid Name="grdMain" Width="Auto" Height="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />   <!-- Brime -->
+            <RowDefinition Height="Auto" />   <!--       -->
+            <RowDefinition Height="Auto" />   <!-- Twitch -->
+            <RowDefinition Height="Auto" />   <!--        -->
+            <RowDefinition Height="Auto" />   <!-- Trovo -->
+            <RowDefinition Height="Auto" />   <!--       -->
+            <RowDefinition Height="Auto" />   <!-- YouTube -->
+            <RowDefinition Height="Auto" />   <!--          -->
+            <RowDefinition Height="Auto" />   <!-- Connect/Controls -->
+        </Grid.RowDefinitions>
+        <Grid Name="grdBrime" Grid.Row="0" Grid.Column="0" Margin="5,5,5,5">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Content="Brime" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" FontFamily="Engravers MT" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Label Content="Channel Name:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <Label Content="Channel ID:" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" />
+            <TextBox Name="txtChannelName" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" ToolTip="Channel Name" />
+            <TextBox Name="txtChannelID" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" IsEnabled="False" ToolTip="Channel ID (part before '=' of stream key)" />
+        </Grid>
+        <Separator Grid.Row="1" Grid.Column="0" />
+        <Grid Name="grdTwitch" Grid.Row="2" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Content="Twitch" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontFamily="Engravers MT" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <CheckBox Content="Connect Twitch" Name="chkTwitch" IsChecked="True" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Label Content="Disconnected" Name="lblTwitch" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        </Grid>
+        <Separator Grid.Row="3" Grid.Column="0" />
+        <Grid Name="grdTrovo" Grid.Row="4" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Content="Trovo" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontFamily="Engravers MT" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <CheckBox Content="Connect Trovo" Name="chkTrovo" IsChecked="False" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Label Name="lblTrovo" Content="Disconnected" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        </Grid>
+        <Separator Grid.Row="5" Grid.Column="0" />
+        <Grid Name="grdYoutube" Grid.Row="6" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Content="YouTube" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontFamily="Engravers MT" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <CheckBox Content="Connect YouTube" Name="chkYoutube" IsChecked="False" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Label Name="lblYoutube" Content="Disconnected" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        </Grid>
+        <Separator Grid.Row="7" Grid.Column="0" />
+        <Grid Grid.Row="8" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <CheckBox Name="chkShowLog" Content="Show Log" IsChecked="False" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Button Name="btnConnect" Content="Connect" Grid.Row="0" Grid.Column="1" FontFamily="Copperplate Gothic Light" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5" Padding="5,5,5,5" Click="btnConnect_Click" />
+            <Button Name="btnClose" Content="Close" Grid.Row="0" Grid.Column="2" FontFamily="Copperplate Gothic Light" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5" Padding="5,5,5,5" Click="btnClose_Click" />
+        </Grid>
+    </Grid>
+</Window>

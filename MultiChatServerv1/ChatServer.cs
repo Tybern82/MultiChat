@@ -21,46 +21,61 @@ namespace MultiChatServer {
         private WatsonWsServer? server;
         // private MergedChatbot? Chatbot;
 
-        public bool RunServer { get; set; } = false;
+        private bool _RunServer = false;
+        public bool RunServer { 
+            get {
+                return _RunServer;
+            }
+            set {
+                _RunServer = value;
+                if (listener != null) listener.Stop();
+            }
+        }
+
+        public bool IsConnected { get; private set; } = false;
 
         public async Task HandleIncomingConnections() {
             if (listener == null) return;
 
             while (RunServer) {
-                // Will wait here until we hear from a connection
-                HttpListenerContext ctx = await listener.GetContextAsync();
-
-                // Peel out the requests and response objects
-                HttpListenerRequest req = ctx.Request;
-                HttpListenerResponse resp = ctx.Response;
-
                 try {
-                    if (req.HttpMethod == "GET") {
-                        string path = req.RawUrl.Substring(1);
-                        path = path.Split(new char[] { '?' }, StringSplitOptions.None)[0];
-                        if (path.Equals("")) path = "ChatWindow.html";    // default page
-                        string? appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-                        if (appPath == null) appPath = "./web/";
-                        appPath = Path.Combine(appPath, "web");
-                        string fname = Path.Combine(appPath, path);
-                        Logger.Trace(() => { return string.Format("Requested File: <{0}>", path); });
-                        if (!File.Exists(fname)) {
-                            Logger.Warn(() => { return "File not found: <" + fname + ">"; });
-                            SendErrorResponse(resp, 404, string.Format("Requested file <{0}> not found.", path), path);
-                        } else {
-                            using (var fileStream = File.OpenRead(fname)) {
-                                resp.ContentType = MimeMapping.MimeUtility.GetMimeMapping(fname);
-                                resp.ContentLength64 = (new FileInfo(fname)).Length;
-                                fileStream.CopyTo(resp.OutputStream);
+                    // Will wait here until we hear from a connection
+                    HttpListenerContext ctx = await listener.GetContextAsync();
+
+                    // Peel out the requests and response objects
+                    HttpListenerRequest req = ctx.Request;
+                    HttpListenerResponse resp = ctx.Response;
+
+                    try {
+                        if (req.HttpMethod == "GET") {
+                            string path = req.RawUrl.Substring(1);
+                            path = path.Split(new char[] { '?' }, StringSplitOptions.None)[0];
+                            if (path.Equals("")) path = "ChatWindow.html";    // default page
+                            string? appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                            if (appPath == null) appPath = "./web/";
+                            appPath = Path.Combine(appPath, "web");
+                            string fname = Path.Combine(appPath, path);
+                            Logger.Trace(() => { return string.Format("Requested File: <{0}>", path); });
+                            if (!File.Exists(fname)) {
+                                Logger.Warn(() => { return "File not found: <" + fname + ">"; });
+                                SendErrorResponse(resp, 404, string.Format("Requested file <{0}> not found.", path), path);
+                            } else {
+                                using (var fileStream = File.OpenRead(fname)) {
+                                    resp.ContentType = MimeMapping.MimeUtility.GetMimeMapping(fname);
+                                    resp.ContentLength64 = (new FileInfo(fname)).Length;
+                                    fileStream.CopyTo(resp.OutputStream);
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        Logger.Error(e.ToString());
                     }
-                } catch (Exception e) {
-                    Logger.Error(e.ToString());
-                }
-                resp.Close();
+                    resp.Close();
+                } catch (HttpListenerException) {}
             }
+            IsConnected = false;
             server?.Stop();
+            Logger.Trace("Shutdown Chat Server");
         }
 
         private void SendErrorResponse(HttpListenerResponse response, int statusCode, string statusResponse, string reqName) {
@@ -128,10 +143,17 @@ namespace MultiChatServer {
                 if (hasYoutube) handlers.Add(new YoutubeChatHandler(this));
                 server.ClientConnected += onClientConnected;
                 server.ClientDisconnected += onClientDisconnected;
+                isConnected = true;
                 // Chatbot = new MergedChatbot(brimeName, twitchName, server);
                 server.Start();
             });
         }
+
+        public delegate void SetName(string name);
+
+        public SetName TwitchName { get; set; } = (name) => { };
+        public SetName TrovoName { get; set; } = (name) => { };
+        public SetName YoutubeName { get; set; } = (name) => { };
 
         public void updateTitle(string title) {
             Logger.Trace("Updating stream titles: <" + title + ">");

@@ -25,22 +25,22 @@ namespace MultiChatServer.chat {
         private const string clientSecret = "bisw82ht2igcviud9wm5xtaa123v8u"; // "jtzezlc6iuc18vh9dktywdgdgtu44b";
 
         private static readonly List<OAuthClientScopeEnum> scopes = new List<OAuthClientScopeEnum>() {
-            OAuthClientScopeEnum.channel_commercial,
-            OAuthClientScopeEnum.channel_editor,
+            // OAuthClientScopeEnum.channel_commercial,
+            // OAuthClientScopeEnum.channel_editor,
             OAuthClientScopeEnum.channel_read,
             OAuthClientScopeEnum.channel_subscriptions,
             OAuthClientScopeEnum.user_subscriptions,
 
-            OAuthClientScopeEnum.user_read,
+            // OAuthClientScopeEnum.user_read,
 
             OAuthClientScopeEnum.bits__read,
-            OAuthClientScopeEnum.channel__moderate,
-            OAuthClientScopeEnum.channel__read__redemptions,
+            // OAuthClientScopeEnum.channel__moderate,
+            // OAuthClientScopeEnum.channel__read__redemptions,
             OAuthClientScopeEnum.chat__edit,
             OAuthClientScopeEnum.chat__read,
-            OAuthClientScopeEnum.user__edit,
-            OAuthClientScopeEnum.whispers__read,
-            OAuthClientScopeEnum.whispers__edit,
+            // OAuthClientScopeEnum.user__edit,
+            // OAuthClientScopeEnum.whispers__read,
+            // OAuthClientScopeEnum.whispers__edit,
         };
 
         private static TwitchConnection? twitchAPI;
@@ -70,12 +70,12 @@ namespace MultiChatServer.chat {
 
                             pubSub = new PubSubClient(twitchAPI);
 
-                            pubSub.OnDisconnectOccurred += PubSub_OnDisconnectOccurred;
-                            pubSub.OnSentOccurred += PubSub_OnSentOccurred;
-                            pubSub.OnReconnectReceived += PubSub_OnReconnectReceived;
-                            pubSub.OnResponseReceived += PubSub_OnResponseReceived;
+                            // pubSub.OnDisconnectOccurred += PubSub_OnDisconnectOccurred;
+                            // pubSub.OnSentOccurred += PubSub_OnSentOccurred;
+                            // pubSub.OnReconnectReceived += PubSub_OnReconnectReceived;
+                            // pubSub.OnResponseReceived += PubSub_OnResponseReceived;
                             pubSub.OnMessageReceived += PubSub_OnMessageReceived;
-                            pubSub.OnWhisperReceived += PubSub_OnWhisperReceived;
+                            // pubSub.OnWhisperReceived += PubSub_OnWhisperReceived;
                             pubSub.OnPongReceived += PubSub_OnPongReceived;
 
                             await pubSub.Connect();
@@ -83,9 +83,15 @@ namespace MultiChatServer.chat {
                             await Task.Delay(1000);
 
                             List<PubSubListenTopicModel> topics = new List<PubSubListenTopicModel>();
+                            topics.Add(new PubSubListenTopicModel(PubSubTopicsEnum.ChannelSubscriptionsV1, user.id));
+                            topics.Add(new PubSubListenTopicModel(PubSubTopicsEnum.ChannelBitsEventsV2, user.id));
+
+                            /*
+                            List<PubSubListenTopicModel> topics = new List<PubSubListenTopicModel>();
                             foreach (PubSubTopicsEnum topic in EnumHelper.GetEnumList<PubSubTopicsEnum>()) {
                                 topics.Add(new PubSubListenTopicModel(topic, user.id));
                             }
+                            */
 
                             await pubSub.Listen(topics);
                             await Task.Delay(1000);
@@ -122,6 +128,7 @@ namespace MultiChatServer.chat {
 
                             isConnected = true;
                             Logger.Trace(string.Format("There are {0} users currently in chat", currentUserList.Count()));
+                            server.TwitchName.Invoke(user.display_name);
                         }
                     }
                 } catch (Exception ex) {

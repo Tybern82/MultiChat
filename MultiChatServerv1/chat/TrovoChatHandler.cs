@@ -52,6 +52,7 @@ namespace MultiChatServer.chat {
                         PrivateUserModel user = await connection.Users.GetCurrentUser();
                         if (user != null) {
                             Logger.Info("Current User: " + user.userName);
+                            server.TrovoName.Invoke(user.userName);
 
                             PrivateChannelModel channel = await connection.Channels.GetCurrentChannel();
                             if (channel != null) {
