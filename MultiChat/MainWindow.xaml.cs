@@ -22,20 +22,24 @@ namespace MultiChat {
             logger.Trace("Initialized Main Window");
             try {
                 FileIniDataParser parser = new FileIniDataParser();
-                string? appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                string appPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 if (appPath == null) appPath = "./";
                 string fname = Path.Combine(appPath, "MultiChat.ini");
-                IniParser.Model.IniData data = parser.ReadFile(fname);
-                string name = data["MultiChat"]["BrimeName"];
-                string id = data["MultiChat"]["BrimeChannelID"];
-                bool connTwitch = bool.Parse(data["MultiChat"]["ConnectTwitch"]);
-                bool connTrovo = bool.Parse(data["MultiChat"]["ConnectTrovo"]);
-                bool connYoutube = bool.Parse(data["MultiChat"]["ConnectYouTube"]);
-                txtChannelName.Text = name;
-                txtChannelID.Text = id;
-                chkTwitch.IsChecked = connTwitch;
-                chkTrovo.IsChecked = connTrovo;
-                chkYoutube.IsChecked = connYoutube;
+                if (File.Exists(fname)) {
+                    IniParser.Model.IniData data = parser.ReadFile(fname);
+                    string name = data["MultiChat"]["BrimeName"];
+                    string id = data["MultiChat"]["BrimeChannelID"];
+                    bool connTwitch = bool.Parse(data["MultiChat"]["ConnectTwitch"]);
+                    bool connTrovo = bool.Parse(data["MultiChat"]["ConnectTrovo"]);
+                    bool connYoutube = bool.Parse(data["MultiChat"]["ConnectYouTube"]);
+                    bool showLog = bool.Parse(data["MultiChat"]["ShowLog"]);
+                    txtChannelName.Text = name;
+                    txtChannelID.Text = id;
+                    chkTwitch.IsChecked = connTwitch;
+                    chkTrovo.IsChecked = connTrovo;
+                    chkYoutube.IsChecked = connYoutube;
+                    chkShowLog.IsChecked = showLog;
+                }
             } catch (Exception) {}
         }
 
@@ -138,7 +142,7 @@ namespace MultiChat {
 
             try {
                 FileIniDataParser parser = new FileIniDataParser();
-                string? appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                string appPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 if (appPath == null) appPath = "./";
                 string fname = Path.Combine(appPath, "MultiChat.ini");
                 IniParser.Model.IniData data = new IniParser.Model.IniData();
@@ -147,6 +151,7 @@ namespace MultiChat {
                 data["MultiChat"]["ConnectTwitch"] = chkTwitch.IsChecked.ToString();
                 data["MultiChat"]["ConnectTrovo"] = chkTrovo.IsChecked.ToString();
                 data["MultiChat"]["ConnectYouTube"] = chkYoutube.IsChecked.ToString();
+                data["MultiChat"]["ShowLog"] = chkShowLog.IsChecked.ToString();
                 parser.WriteFile(fname, data, System.Text.Encoding.UTF8);
             } catch (Exception) {}
 
