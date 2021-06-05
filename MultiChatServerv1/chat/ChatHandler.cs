@@ -20,8 +20,9 @@ namespace MultiChatServer.chat {
         public static int Timeout { get; set; } = 30000;
 
         protected static readonly string CHAT_FORMAT = "{{\"type\": \"CHAT\", \"sender\": {{\"displayname\": {0}, \"color\": {1}, \"badges\": {2}}}, \"emotes\": {3}, \"message\": {4}, \"mstimeout\": {5} }}";
-        protected static readonly string FOLLOW_FORMAT = "{{\"type\": \"FOLLOW\", \"username\": {0} }}";
-        protected static readonly string SUB_FORMAT = "{{\"type\": \"SUBSCRIBE\", \"username\": {0}, \"isResub\": {1} }}";
+        protected static readonly string FOLLOW_FORMAT = "{{\"type\": \"FOLLOW\", \"username\": {0}, \"mstimeout\": {1} }}";
+        protected static readonly string SUB_FORMAT = "{{\"type\": \"SUBSCRIBE\", \"username\": {0}, \"isResub\": {1}, \"isGift\": {2}, \"months\": {3}, \"mstimeout\": {4} }}";
+        protected static readonly string SPEC_FORMAT = "{{\"type\": \"ALERT\", \"alert\": {0}, \"mstimeout\": {1} }}";
 
         protected static readonly string DEFAULT_COLOR = "#FFFFFF";
 
@@ -42,14 +43,30 @@ namespace MultiChatServer.chat {
 
         public void doFollow(string username) {
             string msg = string.Format(FOLLOW_FORMAT,
-                username);
+                username.ToJSONString(),
+                Timeout.ToJSONString()
+                );
             ChatServer.send(msg);
         }
 
-        public void doSubscribe(string username, bool isResub) {
+        public void doSubscribe(string username, bool isResub, bool isGift, int months) {
             string msg = string.Format(SUB_FORMAT,
-                username,
-                isResub);
+                username.ToJSONString(),
+                isResub.ToJSONString(),
+                isGift.ToJSONString(),
+                months.ToJSONString(),
+                Timeout.ToJSONString());
+            ChatServer.send(msg);
+        }
+
+        /// <summary>
+        /// Used for custom alerts - ie for Twitch would include Bits and Channel Points
+        /// </summary>
+        /// <param name="alertMsg">Alert message to send</param>
+        public void doSpecialAlert(string alertMsg) {
+            string msg = string.Format(SPEC_FORMAT,
+                alertMsg.ToJSONString(),
+                Timeout.ToJSONString());
             ChatServer.send(msg);
         }
 

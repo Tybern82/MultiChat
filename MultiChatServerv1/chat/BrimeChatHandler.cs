@@ -66,7 +66,7 @@ namespace MultiChatServer.chat {
         }
 
         public void onSubscribe(string username, string userId, bool isResub) {
-            doSubscribe(username, isResub);
+            doSubscribe(username, isResub, false, -1);
         }
     }
 }

@@ -23,6 +23,10 @@ function connect() {
             case "VIEWERCOUNT":
                 updateViewerCount(msg);
                 break;
+
+            case "ALERT":
+                appendAlertMessage(msg);
+                break;
         }
     };
 
@@ -63,6 +67,14 @@ function appendDisconnectMessage() {
     document.getElementById("div").appendChild(div);
 }
 
+function appendAlertMessage(msg) {
+    const div = document.createElement("div");
+    div.innerHTML = msg.alert;
+    animateSlide(div);
+    if (doFade) disappear(div, msg.mstimeout);
+    document.getElementById("div").appendChild(div);
+}
+
 function appendFollowMessage(msg) {
     const div = document.createElement("div");
     const uname = document.createElement("span");
@@ -97,7 +109,9 @@ function appendSubscribeMessage(msg) {
     uname.classList = "username";
 
     message.classList = "message";
-    message.innerHTML = "has " + (msg.isResub ? "resubscribed" : "subscribed");
+    message.innerHTML = "has " + (msg.isGift ? "has been gifted a sub" : (msg.isResub ? "resubscribed" : "subscribed"));
+    if (msg.months > 0)
+        message.innerHTML += "<br />They have been subscribed for " + msg.months + " months";
 
     div.appendChild(uname);
     div.appendChild(message);

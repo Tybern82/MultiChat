@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -74,9 +75,10 @@ namespace MultiChatServer.chat {
                             // pubSub.OnSentOccurred += PubSub_OnSentOccurred;
                             // pubSub.OnReconnectReceived += PubSub_OnReconnectReceived;
                             // pubSub.OnResponseReceived += PubSub_OnResponseReceived;
-                            pubSub.OnMessageReceived += PubSub_OnMessageReceived;
                             // pubSub.OnWhisperReceived += PubSub_OnWhisperReceived;
                             pubSub.OnPongReceived += PubSub_OnPongReceived;
+                            pubSub.OnSubscribedReceived += PubSub_OnSubscribedReceived;
+                            pubSub.OnSubscriptionsGiftedReceived += PubSub_OnSubscriptionsGiftedReceived;
 
                             await pubSub.Connect();
 
@@ -97,6 +99,28 @@ namespace MultiChatServer.chat {
                             await Task.Delay(1000);
                             await pubSub.Ping();
 
+                            // Need to poll for changes to Follower list, since we can't receive the WebHook connection
+                            // without requiring users to create SSL certificates, etc
+                            Thread t = new Thread(new ThreadStart((() => {
+                                // Record existing followers
+                                HashSet<string> fIDs = new HashSet<string>();
+                                foreach (var follower in twitchAPI.NewAPI.Users.GetFollows(null, user.id, int.MaxValue).Result) {
+                                    fIDs.Add(follower.from_id);
+                                }
+                                while (server.RunServer) {
+                                    Thread.Sleep(30000);
+                                    // Get updated list, and compare with existing
+                                    foreach (var follower in twitchAPI.NewAPI.Users.GetFollows(null, user.id, int.MaxValue).Result) {
+                                        if (!fIDs.Contains(follower.from_id)) {
+                                            fIDs.Add(follower.from_id);
+                                            doFollow(follower.from_name);
+                                        }
+                                    }
+                                }
+                            })));
+                            t.IsBackground = true;
+                            t.Start();
+                            
                             chat = new ChatClient(twitchAPI);
 
                             chat.OnDisconnectOccurred += Chat_OnDisconnectOccurred;
@@ -135,26 +159,6 @@ namespace MultiChatServer.chat {
                     Logger.Trace(ex.ToString());
                 }
             }).Wait();
-        }
-
-        private static void PubSub_OnDisconnectOccurred(object sender, System.Net.WebSockets.WebSocketCloseStatus e) {
-            Logger.Trace("DISCONNECTED");
-        }
-
-        private static void PubSub_OnSentOccurred(object sender, string packet) {
-            Logger.Trace("SEND: " + packet);
-        }
-
-        private static void PubSub_OnReconnectReceived(object sender, System.EventArgs e) {
-            Logger.Trace("RECONNECT");
-        }
-
-        private static void PubSub_OnResponseReceived(object sender, PubSubResponsePacketModel packet) {
-            Logger.Trace("RESPONSE: " + packet.error);
-        }
-
-        private static void PubSub_OnWhisperReceived(object sender, PubSubWhisperEventModel whisper) {
-            Logger.Trace("WHISPER: " + whisper.body);
         }
 
         private static void PubSub_OnPongReceived(object sender, System.EventArgs e) {
@@ -250,19 +254,12 @@ namespace MultiChatServer.chat {
             }
         }
 
-        private void PubSub_OnMessageReceived(object sender, PubSubMessagePacketModel packet) {
-            Logger.Trace(string.Format("MESSAGE: {0} {1} ", packet.type, packet.message));
-            if (packet.type == "MESSAGE") {
-                if (packet.topicType == PubSubTopicsEnum.ChannelSubscriptionsV1) {
-                    processSubscriptionMessage(packet.message);
-                }
-            }
+        private void PubSub_OnSubscriptionsGiftedReceived(object sender, PubSubSubscriptionsGiftEventModel e) {
+            doSubscribe(e.display_name, e.cumulative_months > 1, true, e.cumulative_months);
         }
 
-        public void processSubscriptionMessage(string msg) {
-            Logger.Trace("SubMessage: <" + msg + ">");
-            // JObject jsonData = JObject.Parse(msg);
-            // JToken message = jsonData.Value<JToken>("message");
+        private void PubSub_OnSubscribedReceived(object sender, PubSubSubscriptionsEventModel e) {
+            doSubscribe(e.display_name, e.cumulative_months > 1, false, e.cumulative_months);
         }
     }
 }
