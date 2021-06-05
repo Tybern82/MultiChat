@@ -20,7 +20,12 @@ namespace MultiChatConsole {
             ChatServer chatServer = new ChatServer();
 
             SetNlogLogLevel(opts.Verbose ? NLog.LogLevel.Trace : NLog.LogLevel.Info);
-            chatServer.Start(opts.BrimeName, opts.ConnectTwitch, opts.ConnectTrovo, opts.ConnectYouTube);
+            ChatServerSettings settings = new ChatServerSettings();
+            settings.BrimeName = opts.BrimeName;
+            settings.ConnectTwitch = opts.ConnectTwitch;
+            settings.ConnectTrovo = opts.ConnectTrovo;
+            settings.ConnectYouTube = opts.ConnectYouTube;
+            chatServer.Start(settings);
 
             Console.WriteLine("Open http://localhost:8080/ to view combined chat");
             Console.WriteLine("Open http://localhost:8080/Notifications.html to view notification information");

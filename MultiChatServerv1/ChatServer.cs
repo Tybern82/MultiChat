@@ -120,6 +120,7 @@ namespace MultiChatServer {
             "   </body>\n" +
             "</html>\n";
 
+        /*
         public void Start(string brimeName, bool hasTwitch, bool hasTrovo, bool hasYoutube) {
             if (RunServer) return;  // already running
             RunServer = true;
@@ -138,13 +139,37 @@ namespace MultiChatServer {
                 server = new WatsonWsServer("localhost", 8081, false);
 
                 if (!string.IsNullOrWhiteSpace(brimeName)) handlers.Add(new BrimeChatHandler(brimeName, this));
-                if (hasTwitch) handlers.Add(new TwitchChatHandler(this));
+                if (hasTwitch) handlers.Add(new TwitchChatHandler(this, settings));
                 if (hasTrovo) handlers.Add(new TrovoChatHandler(this));
                 if (hasYoutube) handlers.Add(new YoutubeChatHandler(this));
                 server.ClientConnected += onClientConnected;
                 server.ClientDisconnected += onClientDisconnected;
                 IsConnected = true;
                 // Chatbot = new MergedChatbot(brimeName, twitchName, server);
+                server.Start();
+            });
+        }
+        */
+
+        public void Start(ChatServerSettings settings) {
+            if (RunServer) return;  // already running
+            RunServer = true;
+            Task.Run(() => {
+                this.listener = new HttpListener();
+                listener.Prefixes.Add("http://localhost:8080");
+                listener.Start();
+                HandleIncomingConnections().GetAwaiter().GetResult();
+                listener.Close();
+            });
+            Task.Run(() => {
+                server = new WatsonWsServer("localhost", 8081, false);
+                if (!string.IsNullOrWhiteSpace(settings.BrimeName)) handlers.Add(new BrimeChatHandler(settings.BrimeName, this));
+                if (settings.ConnectTwitch) handlers.Add(new TwitchChatHandler(this, settings));
+                if (settings.ConnectTrovo) handlers.Add(new TrovoChatHandler(this));
+                if (settings.ConnectYouTube) handlers.Add(new YoutubeChatHandler(this));
+                server.ClientConnected += onClientConnected;
+                server.ClientDisconnected += onClientDisconnected;
+                IsConnected = true;
                 server.Start();
             });
         }
@@ -197,7 +222,7 @@ namespace MultiChatServer {
                                 }
                                 loopCount++;
                                 loopCount = loopCount % updateCount;
-                                Thread.Sleep(2000);
+                                Thread.Sleep(5000);
                             } catch (Exception e) {
                                 Logger.Trace(e.ToString());
                             }

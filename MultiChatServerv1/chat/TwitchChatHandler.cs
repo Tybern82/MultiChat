@@ -51,9 +51,11 @@ namespace MultiChatServer.chat {
         private static SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private static List<string> currentUserList = new List<string>();
         // private string TwitchName { get; set; }
+        private ChatServerSettings settings;
 
-        public TwitchChatHandler(ChatServer server) : base(server) {
+        public TwitchChatHandler(ChatServer server, ChatServerSettings settings) : base(server) {
             // this.TwitchName = twitchName;
+            this.settings = settings;
 
             Task.Run(async () => {
                 try {
@@ -178,14 +180,17 @@ namespace MultiChatServer.chat {
         }
 
         private static void Chat_OnUserListReceived(object sender, ChatUsersListPacketModel packet) {
+            Logger.Trace("Initial Twitch chat: " + BrimeAPI.com.brimelive.api.JSONUtil.ToJSONString(packet.UserLogins));
             currentUserList.AddRange(packet.UserLogins);
         }
 
         private static void Chat_OnUserJoinReceived(object sender, ChatUserJoinPacketModel packet) {
+            Logger.Trace(packet.UserLogin + " entered Twitch chat");
             currentUserList.Add(packet.UserLogin);
         }
 
         private static void Chat_OnUserLeaveReceived(object sender, ChatUserLeavePacketModel packet) {
+            Logger.Trace(packet.UserLogin + " left Twitch chat");
             currentUserList.Remove(packet.UserLogin);
         }
 
@@ -204,8 +209,8 @@ namespace MultiChatServer.chat {
 
             string[] badges = new string[1];
             badges[0] = "http://localhost:8080/TwitchLogo.png";
-
-            doChatMessage(packet.UserDisplayName, packet.Message, emotes.ToArray(), badges, packet.Color);
+            
+            doChatMessage((string.IsNullOrWhiteSpace(packet.UserDisplayName) ? packet.UserLogin : packet.UserDisplayName), packet.Message, emotes.ToArray(), badges, packet.Color);
         }
 
         private static void Chat_OnUserStateReceived(object sender, ChatUserStatePacketModel packet) {
@@ -237,7 +242,14 @@ namespace MultiChatServer.chat {
         }
 
         public override long getViewerCount() {
-            return currentUserList.Count;
+            // Need '-1' to remove the current "viewer" where this app connects to chat
+            int chattersToRemove = 1; // start with broadcaster
+            foreach (string s in settings.IgnoreChatNames) {
+                if (currentUserList.Contains(s)) chattersToRemove++;
+            }
+            int result = currentUserList.Count - chattersToRemove;
+            if (result < 0) result = 0;
+            return result;
         }
 
         public override void updateCategory(string category) {

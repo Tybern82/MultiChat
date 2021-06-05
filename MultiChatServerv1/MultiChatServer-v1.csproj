@@ -172,6 +172,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChatServerSettings.cs" />
     <Compile Include="chat\BrimeChatHandler.cs" />
     <Compile Include="chat\ChatHandler.cs" />
     <Compile Include="ChatServer.cs" />

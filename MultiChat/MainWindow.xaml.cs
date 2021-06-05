@@ -1,14 +1,15 @@
-﻿using System.Windows;
+﻿#nullable enable
+
+using System;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using MultiChat.Helper;
 using MultiChatServer;
+using Newtonsoft.Json.Linq;
 using NLog;
 using NLog.Config;
 using NLog.Targets.Wrappers;
-using IniParser;
-using System.IO;
-using System.Diagnostics;
-using System;
 
 namespace MultiChat {
     /// <summary>
@@ -21,29 +22,29 @@ namespace MultiChat {
             InitializeComponent();
             logger.Trace("Initialized Main Window");
             try {
-                FileIniDataParser parser = new FileIniDataParser();
                 string appPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 if (appPath == null) appPath = "./";
-                string fname = Path.Combine(appPath, "MultiChat.ini");
+                string fname = Path.Combine(appPath, "MultiChat.json");
                 if (File.Exists(fname)) {
-                    IniParser.Model.IniData data = parser.ReadFile(fname);
-                    string name = data["MultiChat"]["BrimeName"];
-                    string id = data["MultiChat"]["BrimeChannelID"];
-                    bool connTwitch = bool.Parse(data["MultiChat"]["ConnectTwitch"]);
-                    bool connTrovo = bool.Parse(data["MultiChat"]["ConnectTrovo"]);
-                    bool connYoutube = bool.Parse(data["MultiChat"]["ConnectYouTube"]);
-                    bool showLog = bool.Parse(data["MultiChat"]["ShowLog"]);
-                    txtChannelName.Text = name;
-                    txtChannelID.Text = id;
-                    chkTwitch.IsChecked = connTwitch;
-                    chkTrovo.IsChecked = connTrovo;
-                    chkYoutube.IsChecked = connYoutube;
-                    chkShowLog.IsChecked = showLog;
+                    // Load JSON data
+                    JObject jsonData = JObject.Parse(File.ReadAllText(fname));
+                    serverSettings = new ChatServerSettings(jsonData);
+                } else {
+                    serverSettings = new ChatServerSettings();
                 }
-            } catch (Exception) {}
+            } catch (Exception) {
+                serverSettings = new ChatServerSettings();
+            }
+            txtChannelName.Text = serverSettings.BrimeName;
+            txtChannelID.Text = serverSettings.BrimeChannelID;
+            chkTwitch.IsChecked = serverSettings.ConnectTwitch;
+            chkTrovo.IsChecked = serverSettings.ConnectTrovo;
+            chkYoutube.IsChecked = serverSettings.ConnectYouTube;
+            chkShowLog.IsChecked = serverSettings.ShowLog;
         }
 
-        private ChatServer chatServer;
+        private ChatServer? chatServer;
+        private ChatServerSettings serverSettings;
         private bool isConnect = true;
 
         private void btnConnect_Click(object sender, RoutedEventArgs e) {
@@ -70,7 +71,7 @@ namespace MultiChat {
                 }
                 this.Cursor = Cursors.Wait;
                 chatServer = new ChatServer();
-                if ((bool)chkTwitch.IsChecked) {
+                if (chkTwitch.IsChecked == true) {
                     lblTwitch.Content = "Connecting...";
                     chatServer.TwitchName = (name) => {
                         wndMain.Dispatcher.Invoke(() => {
@@ -78,7 +79,7 @@ namespace MultiChat {
                         });
                     };
                 }
-                if ((bool)chkTrovo.IsChecked) {
+                if (chkTrovo.IsChecked == true) {
                     lblTrovo.Content = "Connecting...";
                     chatServer.TrovoName = (name) => {
                         wndMain.Dispatcher.Invoke(() => {
@@ -86,7 +87,7 @@ namespace MultiChat {
                         });
                     };
                 }
-                if ((bool)chkYoutube.IsChecked) {
+                if (chkYoutube.IsChecked == true) {
                     lblYoutube.Content = "Connecting...";
                     chatServer.YoutubeName = (name) => {
                         wndMain.Dispatcher.Invoke(() => {
@@ -94,12 +95,7 @@ namespace MultiChat {
                         });
                     };
                 }
-                chatServer.Start(
-                    txtChannelName.Text,
-                    (bool)chkTwitch.IsChecked,
-                    (bool)chkTrovo.IsChecked,
-                    (bool)chkYoutube.IsChecked
-                    );
+                chatServer.Start(serverSettings);
                 grdBrime.IsEnabled = false;
                 grdTwitch.IsEnabled = false;
                 grdTrovo.IsEnabled = false;
@@ -139,51 +135,41 @@ namespace MultiChat {
 
         private void btnClose_Click(object sender, RoutedEventArgs e) {
             if (chatServer != null) chatServer.RunServer = false;
-
             try {
-                FileIniDataParser parser = new FileIniDataParser();
                 string appPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 if (appPath == null) appPath = "./";
-                string fname = Path.Combine(appPath, "MultiChat.ini");
-                IniParser.Model.IniData data = new IniParser.Model.IniData();
-                data["MultiChat"]["BrimeName"] = txtChannelName.Text;
-                data["MultiChat"]["BrimeChannelID"] = txtChannelID.Text;
-                data["MultiChat"]["ConnectTwitch"] = chkTwitch.IsChecked.ToString();
-                data["MultiChat"]["ConnectTrovo"] = chkTrovo.IsChecked.ToString();
-                data["MultiChat"]["ConnectYouTube"] = chkYoutube.IsChecked.ToString();
-                data["MultiChat"]["ShowLog"] = chkShowLog.IsChecked.ToString();
-                parser.WriteFile(fname, data, System.Text.Encoding.UTF8);
+                string fname = Path.Combine(appPath, "MultiChat.json");
+                StreamWriter output = new StreamWriter(new FileStream(fname, FileMode.Create));
+                output.WriteLine(serverSettings.ToJSON());
+                output.Close();
             } catch (Exception) {}
 
             wndMain.Close();
             Application.Current.Shutdown();
         }
 
-        // private LogWindow wndLogging;
+        private void txtChannelName_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            if (serverSettings != null) serverSettings.BrimeName = txtChannelName.Text;
+        }
 
-        private void wndMain_Loaded(object sender, RoutedEventArgs e) {
-            /*
-            Dispatcher.Invoke(() => {
-                if (LogManager.Configuration.FindTargetByName("RichTextAsync") == null) {
-                    var target = new WpfRichTextBoxTarget {
-                        Name = "RichText",
-                        Layout =
-                        "[${longdate:useUTC=false}] :: [${level:uppercase=true}] :: ${logger}:${callsite} :: ${message} ${exception:innerFormat=tostring:maxInnerExceptionLevel=10:separator=,:format=tostring}",
-                        ControlName = "txtLogging",
-                        FormName = "wndLogging",
-                        AutoScroll = true,
-                        MaxLines = 100,
-                        UseDefaultRowColoringRules = true,
-                        Width = 800,
-                        Height = 450,
-                    };
-                    var asyncWrapper = new AsyncTargetWrapper { Name = "RichTextAsync", WrappedTarget = target };
-                    LogManager.Configuration.AddTarget(asyncWrapper.Name, asyncWrapper);
-                    LogManager.Configuration.LoggingRules.Insert(0, new LoggingRule("*", LogLevel.FromString("Trace"), asyncWrapper));
-                    LogManager.ReconfigExistingLoggers();
-                }
-            });
-            */
+        private void txtChannelID_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            if (serverSettings != null) serverSettings.BrimeChannelID = txtChannelID.Text;
+        }
+
+        private void chkTwitch_Checked(object sender, RoutedEventArgs e) {
+            if (serverSettings != null) serverSettings.ConnectTwitch = (chkTwitch.IsChecked == true);
+        }
+
+        private void chkTrovo_Checked(object sender, RoutedEventArgs e) {
+            if (serverSettings != null) serverSettings.ConnectTrovo = (chkTrovo.IsChecked == true);
+        }
+
+        private void chkYoutube_Checked(object sender, RoutedEventArgs e) {
+            if (serverSettings != null) serverSettings.ConnectYouTube = (chkYoutube.IsChecked == true);
+        }
+
+        private void chkShowLog_Checked(object sender, RoutedEventArgs e) {
+            if (serverSettings != null) serverSettings.ShowLog = (chkShowLog.IsChecked == true);
         }
     }
 }
