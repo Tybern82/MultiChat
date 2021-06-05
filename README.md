@@ -18,6 +18,10 @@
 When used in OBS, recommended to set your Browser Dock to: http://localhost:8080?nofade while your Browser Source for
 display on stream would normally just be: http://localhost:8080
 
+Until option is added to the GUI, add bot account names to "ignoreNames" in %AppData%\Roaming\MultiChat.json to have 
+them automatically removed from the viewer count supplied by Twitch. Default list includes common chat bots 
+(StreamElements, StreamLabs, PretzelRocks, Nightbot, etc).
+
 <h2>Console Version</h2>
 
 Parameters to link chats:
