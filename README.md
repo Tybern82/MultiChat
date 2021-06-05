@@ -3,7 +3,7 @@
 
     Chat Support: Brime, Twitch, Trovo. May support YouTube, however this has not been tested.
     Viewer count: Brime, Twitch.
-    Follow/Subscribe Support: Brime, Twitch.
+    Follow/Subscribe Support: Brime, Twitch; Trovo (subscribe only).
 
 <h3>OBS Browser Links:</h3>
 
