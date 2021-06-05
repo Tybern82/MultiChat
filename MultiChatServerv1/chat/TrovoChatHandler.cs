@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Trovo.Base;
@@ -66,6 +67,46 @@ namespace MultiChatServer.chat {
                                     isConnected = true;
                                     Logger.Info("Successfully connected to chat!");
                                 }
+                                Thread t = new Thread(new ThreadStart(() => {
+                                    HashSet<string> existingSubs = new HashSet<string>();
+                                    bool complete = false;
+                                    int offset = 0;
+                                    while (!complete) {
+                                        Logger.Trace("Recording existing Trovo subscribers");
+                                        IEnumerable<ChannelSubscriberModel> results = connection.Channels.GetSubscribers(channel.channel_id, 100, offset).Result;
+                                        int i = 0;
+                                        foreach (var sub in results) {
+                                            existingSubs.Add(sub.user.user_id);
+                                            i++;
+                                        }
+                                        if (i < 100) complete = true;
+                                        offset++;
+                                    }
+                                    Logger.Trace("Found " + existingSubs.Count + " existing Trovo subscribers");
+                                    while (server.RunServer) {
+                                        Thread.Sleep(30000);
+                                        offset = 0;
+                                        complete = false;
+                                        while (!complete) {
+                                            Logger.Trace("Checking for new Trovo subscribers");
+                                            IEnumerable<ChannelSubscriberModel> results = connection.Channels.GetSubscribers(channel.channel_id, 100, offset).Result;
+                                            int i = 0;
+                                            foreach (var sub in results) {
+                                                if (!existingSubs.Contains(sub.user.user_id)) {
+                                                    Logger.Trace("Found new Trovo subscriber: " + sub.user.nickname);
+                                                    doSubscribe(sub.user.nickname, false, false, -1);
+                                                    existingSubs.Add(sub.user.user_id);
+                                                }
+                                                i++;
+                                            }
+                                            if (i < 100) complete = true;
+                                            offset++;
+                                        }
+                                    }
+                                }));
+                                t.Priority = ThreadPriority.BelowNormal;
+                                t.IsBackground = true;
+                                t.Start();
                             }
                         }
                     }

@@ -203,6 +203,7 @@ namespace MultiChatServer {
                             }
                         }
                     }));
+                    t.Priority = ThreadPriority.BelowNormal;
                     t.IsBackground = true;
                     t.Start();
                 }

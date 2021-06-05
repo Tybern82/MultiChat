@@ -37,6 +37,7 @@ namespace BrimeAPI.com.brimelive.api {
                     }
                 } catch (SemaphoreFullException) { }
             })) {
+                Priority = ThreadPriority.BelowNormal,
                 IsBackground = true
             };
             t.Start();

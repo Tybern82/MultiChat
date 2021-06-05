@@ -104,20 +104,24 @@ namespace MultiChatServer.chat {
                             Thread t = new Thread(new ThreadStart((() => {
                                 // Record existing followers
                                 HashSet<string> fIDs = new HashSet<string>();
+                                Logger.Trace("Recording existing Twitch followers");
                                 foreach (var follower in twitchAPI.NewAPI.Users.GetFollows(null, user.id, int.MaxValue).Result) {
                                     fIDs.Add(follower.from_id);
                                 }
                                 while (server.RunServer) {
                                     Thread.Sleep(30000);
                                     // Get updated list, and compare with existing
+                                    Logger.Trace("Detecting new Twitch followers");
                                     foreach (var follower in twitchAPI.NewAPI.Users.GetFollows(null, user.id, int.MaxValue).Result) {
                                         if (!fIDs.Contains(follower.from_id)) {
+                                            Logger.Trace("Found new Twitch follower: " + follower.from_name);
                                             fIDs.Add(follower.from_id);
                                             doFollow(follower.from_name);
                                         }
                                     }
                                 }
                             })));
+                            t.Priority = ThreadPriority.BelowNormal;
                             t.IsBackground = true;
                             t.Start();
                             
