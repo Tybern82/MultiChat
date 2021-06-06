@@ -26,8 +26,13 @@ namespace BrimeAPI.com.brimelive.api.realtime {
         public void onLeave(string username) { Logger.Trace(username + " has left."); }
 
         public void onChat(BrimeChatMessage chatMessage) {
-            Logger.Info("MSG from <" /*+ chatMessage.Sender.DisplayName*/ + ">: \"" + EncodeNonAsciiCharacters(chatMessage.Message) + "\"");
+            Logger.Info("MSG from <" + chatMessage.Sender.DisplayName + ">: \"" + EncodeNonAsciiCharacters(chatMessage.Message) + "\"");
         }
+
+        public void onDeleteChat(string messageID) {
+            Logger.Info("DELETED MESSAGE <" + messageID + ">");
+        }
+
         static string EncodeNonAsciiCharacters(string value) {
             StringBuilder sb = new StringBuilder();
             foreach (char c in value) {

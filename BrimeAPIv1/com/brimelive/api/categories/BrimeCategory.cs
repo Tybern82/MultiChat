@@ -2,24 +2,59 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using BrimeAPI.com.brimelive.api.errors;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace BrimeAPI.com.brimelive.api.categories {
+    /// <summary>
+    /// Identify the category for the stream
+    /// </summary>
     public class BrimeCategory {
 
+        /// <summary>
+        /// Category Identifier
+        /// </summary>
         public string ID { get; private set; }
+
+        /// <summary>
+        /// IGDB number
+        /// </summary>
         public int IGDB { get; private set; }
 
+        /// <summary>
+        /// List of genres associated with this category
+        /// </summary>
         public List<string> Genres { get; private set; } = new List<string>();
+
+        /// <summary>
+        /// Display name for this category
+        /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Identifying slug for this category
+        /// </summary>
         public string Slug { get; private set; }
+
+        /// <summary>
+        /// Provides a short description of this category
+        /// </summary>
         public string Summary { get; private set; }
+
+        /// <summary>
+        /// Identify cover-art for this category
+        /// </summary>
         public Uri CoverURL { get; private set; }
+
+        /// <summary>
+        /// Identify the type of Category
+        /// </summary>
         public string Type { get; private set; }
 
+        /// <summary>
+        /// Construct a new instance, using the provided JSON data
+        /// </summary>
+        /// <param name="jsonData">JSON to load category from</param>
         public BrimeCategory(JToken jsonData) {
             string? curr = jsonData.Value<string>("_id");
             if (curr == null) throw new BrimeAPIMalformedResponse("Missing ID in Category");
@@ -50,7 +85,7 @@ namespace BrimeAPI.com.brimelive.api.categories {
             Slug = curr;
 
             curr = jsonData.Value<string>("summary");
-            Summary = (curr == null) ? "" : curr;
+            Summary = curr ?? "";
 
             curr = jsonData.Value<string>("cover");
             if (curr == null) throw new BrimeAPIMalformedResponse("Missing Cover URL in Category");
@@ -61,9 +96,12 @@ namespace BrimeAPI.com.brimelive.api.categories {
             }
 
             curr = jsonData.Value<string>("type");
-            Type = (curr == null) ? "" : curr;
+            Type = curr ?? "";
         }
 
+        /// <summary>
+        /// Create a new instance, providing empty/default parameters
+        /// </summary>
         public BrimeCategory() {
             ID = "";
             IGDB = -1;
@@ -74,16 +112,18 @@ namespace BrimeAPI.com.brimelive.api.categories {
             Type = "";
         }
 
-        public override string ToString() {            
-            List<string> items = new List<string>(8);   // up to 8 items in list
-            items.Add(ID.ToJSONString().ToJSONEntry("_id"));
+        /// <inheritdoc />
+        public override string ToString() {
+            List<string> items = new List<string>(8) {
+                ID.ToJSONString().ToJSONEntry("_id"),
+                Genres.ToJSONString().ToJSONEntry("genres"),
+                Name.ToJSONString().ToJSONEntry("name"),
+                Slug.ToJSONString().ToJSONEntry("slug"),
+                Summary.ToJSONString().ToJSONEntry("summary"),
+                CoverURL.ToJSONString().ToJSONEntry("cover"),
+                Type.ToJSONString().ToJSONEntry("type")
+            };   // up to 8 items in list
             if (IGDB != -1) items.Add(IGDB.ToJSONString().ToJSONEntry("igdb_id"));
-            items.Add(Genres.ToJSONString().ToJSONEntry("genres"));
-            items.Add(Name.ToJSONString().ToJSONEntry("name"));
-            items.Add(Slug.ToJSONString().ToJSONEntry("slug"));
-            items.Add(Summary.ToJSONString().ToJSONEntry("summary"));
-            items.Add(CoverURL.ToJSONString().ToJSONEntry("cover"));
-            items.Add(Type.ToJSONString().ToJSONEntry("type"));
             return items.TOJSONEntry();
 
             /*            

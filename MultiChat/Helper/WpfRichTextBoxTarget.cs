@@ -256,8 +256,9 @@ namespace MultiChat.Helper {
         {
             System.Windows.Controls.RichTextBox rtbx = TargetRichTextBox;
 
-            var tr = new TextRange(rtbx.Document.ContentEnd, rtbx.Document.ContentEnd);
-            tr.Text = logMessage + "\n";
+            var tr = new TextRange(rtbx.Document.ContentEnd, rtbx.Document.ContentEnd) {
+                Text = logMessage + "\n"
+            };
             tr.ApplyPropertyValue(TextElement.ForegroundProperty, 
                 new SolidColorBrush(GetColorFromString(rule.FontColor, (Brush)tr.GetPropertyValue(TextElement.ForegroundProperty)))
             );

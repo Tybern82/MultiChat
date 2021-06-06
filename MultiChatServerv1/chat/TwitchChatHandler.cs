@@ -48,10 +48,8 @@ namespace MultiChatServer.chat {
         private static PubSubClient? pubSub;
         private static UserModel? user;
         private static ChatClient? chat;
-        private static SemaphoreSlim semaphore = new SemaphoreSlim(1);
-        private static List<string> currentUserList = new List<string>();
-        // private string TwitchName { get; set; }
-        private ChatServerSettings settings;
+        private static readonly List<string> currentUserList = new List<string>();
+        private readonly ChatServerSettings settings;
 
         public TwitchChatHandler(ChatServer server, ChatServerSettings settings) : base(server) {
             // this.TwitchName = twitchName;
@@ -86,9 +84,10 @@ namespace MultiChatServer.chat {
 
                             await Task.Delay(1000);
 
-                            List<PubSubListenTopicModel> topics = new List<PubSubListenTopicModel>();
-                            topics.Add(new PubSubListenTopicModel(PubSubTopicsEnum.ChannelSubscriptionsV1, user.id));
-                            topics.Add(new PubSubListenTopicModel(PubSubTopicsEnum.ChannelBitsEventsV2, user.id));
+                            List<PubSubListenTopicModel> topics = new List<PubSubListenTopicModel> {
+                                new PubSubListenTopicModel(PubSubTopicsEnum.ChannelSubscriptionsV1, user.id),
+                                new PubSubListenTopicModel(PubSubTopicsEnum.ChannelBitsEventsV2, user.id)
+                            };
 
                             /*
                             List<PubSubListenTopicModel> topics = new List<PubSubListenTopicModel>();
@@ -122,9 +121,10 @@ namespace MultiChatServer.chat {
                                         }
                                     }
                                 }
-                            })));
-                            t.Priority = ThreadPriority.BelowNormal;
-                            t.IsBackground = true;
+                            }))) {
+                                Priority = ThreadPriority.BelowNormal,
+                                IsBackground = true
+                            };
                             t.Start();
                             
                             chat = new ChatClient(twitchAPI);
@@ -141,6 +141,7 @@ namespace MultiChatServer.chat {
                             chat.OnMessageReceived += Chat_OnMessageReceived;
                             chat.OnUserStateReceived += Chat_OnUserStateReceived;
                             chat.OnUserNoticeReceived += Chat_OnUserNoticeReceived;
+                            chat.OnClearMessageReceived += Chat_OnClearMessageReceived;
 
                             await chat.Connect();
 
@@ -210,7 +211,11 @@ namespace MultiChatServer.chat {
             string[] badges = new string[1];
             badges[0] = "http://localhost:8080/TwitchLogo.png";
             
-            doChatMessage((string.IsNullOrWhiteSpace(packet.UserDisplayName) ? packet.UserLogin : packet.UserDisplayName), packet.Message, emotes.ToArray(), badges, packet.Color);
+            doChatMessage((string.IsNullOrWhiteSpace(packet.UserDisplayName) ? packet.UserLogin : packet.UserDisplayName), packet.Message, emotes.ToArray(), badges, packet.Color, "TWITCH:"+packet.ID);
+        }
+
+        private void Chat_OnClearMessageReceived(object sender, ChatClearMessagePacketModel e) {
+            doClearMessage("TWITCH:"+e.ID);
         }
 
         private static void Chat_OnUserStateReceived(object sender, ChatUserStatePacketModel packet) {

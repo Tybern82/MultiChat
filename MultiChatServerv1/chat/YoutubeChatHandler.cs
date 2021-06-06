@@ -75,13 +75,14 @@ namespace MultiChatServer.chat {
             badges[0] = "http://localhost:8080/YoutubeLogo.png";
             foreach (LiveChatMessage message in messages) {
                 string msg = "";
-                bool hasContent = (message.Snippet.HasDisplayContent != null) ? (bool)message.Snippet.HasDisplayContent : false;
+                bool hasContent = (message.Snippet.HasDisplayContent != null) && (bool)message.Snippet.HasDisplayContent;
                 if (hasContent) msg = message.Snippet.DisplayMessage;
                 doChatMessage(message.AuthorDetails.DisplayName,
                     msg,
                     new string[0],
                     badges,
-                    DEFAULT_COLOR);
+                    DEFAULT_COLOR,
+                    "YT:"+message.Id);
             }
         }
     }

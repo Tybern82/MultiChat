@@ -16,7 +16,7 @@ namespace MultiChat {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public MainWindow() {
             InitializeComponent();
@@ -44,7 +44,7 @@ namespace MultiChat {
         }
 
         private ChatServer? chatServer;
-        private ChatServerSettings serverSettings;
+        private readonly ChatServerSettings serverSettings;
         private bool isConnect = true;
 
         private void btnConnect_Click(object sender, RoutedEventArgs e) {

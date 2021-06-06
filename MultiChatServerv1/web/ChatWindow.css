@@ -18,6 +18,12 @@ div.chat {
     background-color: rgb(40,48,70);
 }
 
+div.deleted {
+    background-color: rgb(40,48,70);
+    color: rgb(128 128 128);
+    font-style: italic;
+}
+
 .right-align {
     text-align: right;
     padding-right: 15px;

@@ -22,9 +22,9 @@ namespace MultiChatServer {
         /// <param name="jsonData">data object containing settings to load</param>
         public ChatServerSettings(JToken jsonData) : this() {
             string? curr = jsonData.Value<string>("brimeName");
-            BrimeName = (curr != null) ? curr : "";
+            BrimeName = curr ?? "";
             curr = jsonData.Value<string>("brimeChannelID");
-            BrimeChannelID = (curr != null) ? curr : "";
+            BrimeChannelID = curr ?? "";
 
             ConnectTwitch = jsonData.Value<bool>("connectTwitch");
             ConnectTrovo = jsonData.Value<bool>("connectTrovo");
@@ -40,6 +40,10 @@ namespace MultiChatServer {
                     if (curr != null) IgnoreChatNames.Add(curr);
                 }
             }
+
+            curr = jsonData.Value<string>("clientID");
+            if (!string.IsNullOrWhiteSpace(curr)) 
+                BrimeAPI.com.brimelive.api.BrimeAPI.ClientID = curr;
         }
 
         /// <summary>
@@ -96,14 +100,15 @@ namespace MultiChatServer {
         public List<string> IgnoreChatNames { get; private set; }
 
 
-        private string JSON_FORMAT = "{{ \n" +
+        private readonly string JSON_FORMAT = "{{ \n" +
             "    \"brimeName\": {0}, \n" +
             "    \"brimeChannelID\": {1}, \n" +
             "    \"connectTwitch\": {2}, \n" +
             "    \"connectTrovo\": {3}, \n" +
             "    \"connectYouTube\": {4}, \n" +
             "    \"showLog\": {5}, \n" +
-            "    \"ignoreNames\": {6} \n" +
+            "    \"ignoreNames\": {6}, \n" +
+            "    \"clientID\": {7} \n" +
             "}}";
 
         /// <summary>
@@ -118,7 +123,9 @@ namespace MultiChatServer {
                 ConnectTrovo.ToJSONString(),
                 ConnectYouTube.ToJSONString(),
                 ShowLog.ToJSONString(),
-                IgnoreChatNames.ToJSONString());
+                IgnoreChatNames.ToJSONString(),
+                BrimeAPI.com.brimelive.api.BrimeAPI.ClientID.ToJSONString()
+                );
         }
     }
 }

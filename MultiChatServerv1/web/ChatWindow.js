@@ -1,4 +1,5 @@
 ﻿var doFade = true;
+var modView = false;
 
 function connect() {
     var ws = new WebSocket('ws://localhost:8081');
@@ -14,6 +15,10 @@ function connect() {
         switch (msg.type) {
             case "CHAT":
                 appendChatMessage(msg);
+                break;
+
+            case "CLEAR":
+                clearChatMessage(msg);
                 break;
         }
     };
@@ -37,16 +42,35 @@ function connect() {
     if (params.has("nofade")) {
         doFade = false;
     }
+    if (params.has("modView")) {
+        modView = true;
+    }
 }
 
 window.addEventListener("load", connect, false);
 
+function clearChatMessage(msg) {
+    var toRemove = document.getElementById(msg.messageID);    
+    if (toRemove) {
+        if (modView) {
+            toRemove.classList = "deleted";
+            let delMessage = document.createElement("span");
+            delMessage.innerText = "(deleted)";
+            toRemove.appendChild(delMessage);
+        } else {
+            toRemove.remove();
+        }
+    }
+}
+
 function appendChatMessage(msg) {
     const div = document.createElement("div");
     const uname = document.createElement("span");
+    // let uname = document.createElement("span");
     const message = document.createElement("span");
 
     div.classList = "chat";
+    div.id = msg.messageID;
 
     uname.style.marginLeft = "5px";
     uname.innerText = msg.sender.displayname + ": ";
@@ -55,6 +79,15 @@ function appendChatMessage(msg) {
         uname.style.color = msg.sender.color;
         // uname.style = "color: " + msg.sender.color + ";";
     }
+
+    /*
+    if (msg.userLink) {
+        let anch = document.createElement("a");
+        anch.href = msg.userLink;
+        anch.appendChild(uname);
+        uname = anch;
+    }
+    */
 
     for (const item of msg.emotes) {
         console.log("Name: " + item.name + " <" + item.link + ">");

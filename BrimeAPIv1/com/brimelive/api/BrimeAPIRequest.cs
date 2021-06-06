@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Collections.Generic;
 using BrimeAPI.com.brimelive.api.errors;
 
 namespace BrimeAPI.com.brimelive.api {
@@ -36,18 +37,6 @@ namespace BrimeAPI.com.brimelive.api {
     public abstract class BrimeAPIRequest<ResponseType> {
         /// <summary>Class Logger instance</summary>
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        /// <summary>
-        /// Specifies the specific API endpoint to use in this request. Currently defaults to STAGING, will be updated to PRODUCTION once
-        /// this version of the API is finalized. 
-        /// </summary>
-        public BrimeAPIEndpoint APIEndpoint { get; private set; } = BrimeAPIEndpoint.STAGING;   // TODO: Update default to PRODUCTION
-
-        /// <summary>
-        /// Specifies the Client-ID sent with requests to the API. Note that in order to use this library you will need to have a valid 
-        /// Client-ID assigned. This field is static so will only need to be specified once.
-        /// </summary>
-        public static string ClientID { get; set; } = "";
 
         /// <summary>
         /// Specifies whether this request requires special access on the Client-ID in order to complete successfully. Currently this is required
@@ -99,6 +88,17 @@ namespace BrimeAPI.com.brimelive.api {
         protected GetRequestParameters RequestParameters { get; set; } = (() => { return new string[0]; });
 
         /// <summary>
+        /// Defines the delegate structure used to specify query parameters. 
+        /// </summary>
+        /// <returns>Array of query parameters to be added to the request</returns>
+        protected delegate System.Collections.Generic.KeyValuePair<string, string>[] GetQueryParameters();
+
+        /// <summary>
+        /// Query parameters to be included in the API request. 
+        /// </summary>
+        protected GetQueryParameters QueryParameters { get; set; } = (() => { return new System.Collections.Generic.KeyValuePair<string, string>[0]; });
+
+        /// <summary>
         /// Specify the mode to use for this API request. Default is GET, but can also be set to POST request.
         /// </summary>
         protected BrimeRequestMode RequestMode { get; set; } = BrimeRequestMode.GET;
@@ -135,7 +135,7 @@ namespace BrimeAPI.com.brimelive.api {
         /// </summary>
         /// <returns>base website address for the currently selected API Endpoint</returns>
         protected string getAPIEndpoint() {
-            switch (APIEndpoint) {
+            switch (BrimeAPI.APIEndpoint) {
                 case BrimeAPIEndpoint.PRODUCTION:   return "https://api.brimelive.com";
                 case BrimeAPIEndpoint.STAGING:      return "https://api-staging.brimelive.com/v1";
                 case BrimeAPIEndpoint.SANDBOX:
@@ -150,14 +150,15 @@ namespace BrimeAPI.com.brimelive.api {
         /// <returns>URL string for the full address specified in this API request</returns>
         protected string composeRequest() {
             string _result = getAPIEndpoint();
-            _result += string.Format(RequestFormat, RequestParameters.Invoke()); 
-            if (_result.Contains("?")) {
-                // already has query parameters, append extra query parameter
-                _result += "&client_id=" + ClientID;
-            } else {
-                // no existing parameters, just add as single
-                _result += "?client_id=" + ClientID;
+            _result += string.Format(RequestFormat, RequestParameters.Invoke());
+            bool hasQuery = _result.Contains("?");
+            foreach (System.Collections.Generic.KeyValuePair<string, string> param in QueryParameters.Invoke()) {
+                _result += (hasQuery ? "&" : "?");
+                _result += param.Key + "=" + param.Value;
+                hasQuery = true;
             }
+            // TODO: Remove this when using Client-ID header instead
+            _result += (hasQuery ? "&" : "?") + "client_id=" + BrimeAPI.ClientID;
             return _result;
         }
 
@@ -176,7 +177,12 @@ namespace BrimeAPI.com.brimelive.api {
 
             // Call the Rate-Limited request handler to ensure no more than 5 QPS are being made.
             // TODO: Update to send Client-ID as header
-            return RateLimitedRequestHandler.Instance.doRequest(request, RequestMode, new string[0], PostBody.Invoke());
+            return RateLimitedRequestHandler.Instance.doRequest(request, RequestMode, 
+                // Headers to add to request
+                new KeyValuePair<string,string>[] { 
+                    // TODO: Add Client-ID as header: new KeyValuePair<string, string>("Client_Id", BrimeAPI.ClientID) 
+                }, 
+                PostBody.Invoke());
             /*
             // TODO: Include delay to wait if too many requests have been sent.
             // Following section may be moved to a central static method which limits how many requests can be sent

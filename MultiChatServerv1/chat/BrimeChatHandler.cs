@@ -6,27 +6,47 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrimeAPI.com.brimelive.api;
+using BrimeAPI.com.brimelive.api.channels;
+using BrimeAPI.com.brimelive.api.errors;
 using BrimeAPI.com.brimelive.api.realtime;
 using Newtonsoft.Json;
 
 namespace MultiChatServer.chat {
     public class BrimeChatHandler : ChatHandler, BrimeRealtimeListener {
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        public BrimeRealtimeAPI? BrimeAPI { get; private set; }
+        public BrimeRealtimeAPI? BrimeRealtime { get; private set; }
         private string BrimeName { get; set; }
 
-        public BrimeChatHandler(string brimeName, ChatServer server) : base(server) {
-            this.BrimeName = brimeName;
-
-            BrimeAPI = new BrimeRealtimeAPI(brimeName);
-            BrimeAPI.registerListener(this);
+        public BrimeChatHandler(ChatServer server, ChatServerSettings settings) : base(server) {
+            this.BrimeName = settings.BrimeName;
+            if (string.IsNullOrWhiteSpace(BrimeAPI.com.brimelive.api.BrimeAPI.ClientID) && !string.IsNullOrWhiteSpace(settings.BrimeChannelID)) {
+                BrimeRealtime = new BrimeRealtimeAPI(settings.BrimeName);
+            } else {
+                try {
+                    if (string.IsNullOrWhiteSpace(settings.BrimeChannelID)) {
+                        ChannelRequest req = new ChannelRequest(settings.BrimeName);
+                        settings.BrimeChannelID = req.getResponse().ID;
+                    }
+                    BrimeRealtime = new BrimeRealtimeAPI(settings.BrimeChannelID);
+                } catch (BrimeAPIException e) {
+                    Logger.Error(e.ToString());
+                    string cid = BrimeAPI.com.brimelive.api.BrimeAPI.ClientID;
+                    BrimeAPI.com.brimelive.api.BrimeAPI.ClientID = "";
+                    BrimeRealtime = new BrimeRealtimeAPI(settings.BrimeName);
+                    BrimeAPI.com.brimelive.api.BrimeAPI.ClientID = cid;
+                } catch (Exception e) {
+                    Logger.Error(e.ToString());
+                    throw e;
+                }
+            }
+            BrimeRealtime.registerListener(this);
             Logger.Info("Connecting BrimeAPI <" + BrimeName + ">");
-            BrimeAPI.connect();
+            BrimeRealtime.connect();
             isConnected = true;
         }
 
         public override long getViewerCount() {
-            return (BrimeAPI == null ? 0 : BrimeAPI.ViewCountTracker.ViewCount);
+            return (BrimeRealtime == null ? 0 : BrimeRealtime.ViewCountTracker.ViewCount);
         }
 
         public override void updateCategory(string category) {
@@ -62,7 +82,11 @@ namespace MultiChatServer.chat {
                 emotes.Add(string.Format(EMOTE_FORMAT, e, chatMessage.Emotes[e].get1xImageUrl()));
             }
 
-            doChatMessage(chatMessage.Sender.DisplayName, chatMessage.Message, emotes.ToArray(), badges, chatMessage.Sender.Color);
+            doChatMessage(chatMessage.Sender.DisplayName, chatMessage.Message, emotes.ToArray(), badges, chatMessage.Sender.Color, "BRIME:"+chatMessage.ID);
+        }
+
+        public void onDeleteChat(string messageID) {
+            doClearMessage("BRIME:"+messageID);
         }
 
         public void onSubscribe(string username, string userId, bool isResub) {

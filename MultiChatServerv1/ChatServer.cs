@@ -60,11 +60,10 @@ namespace MultiChatServer {
                                 Logger.Warn(() => { return "File not found: <" + fname + ">"; });
                                 SendErrorResponse(resp, 404, string.Format("Requested file <{0}> not found.", path), path);
                             } else {
-                                using (var fileStream = File.OpenRead(fname)) {
-                                    resp.ContentType = MimeMapping.MimeUtility.GetMimeMapping(fname);
-                                    resp.ContentLength64 = (new FileInfo(fname)).Length;
-                                    fileStream.CopyTo(resp.OutputStream);
-                                }
+                                using var fileStream = File.OpenRead(fname); 
+                                resp.ContentType = MimeMapping.MimeUtility.GetMimeMapping(fname);
+                                resp.ContentLength64 = (new FileInfo(fname)).Length;
+                                fileStream.CopyTo(resp.OutputStream);
                             }
                         }
                     } catch (Exception e) {
@@ -156,14 +155,14 @@ namespace MultiChatServer {
             RunServer = true;
             Task.Run(() => {
                 this.listener = new HttpListener();
-                listener.Prefixes.Add("http://localhost:8080");
+                listener.Prefixes.Add("http://localhost:8080/");
                 listener.Start();
                 HandleIncomingConnections().GetAwaiter().GetResult();
                 listener.Close();
             });
             Task.Run(() => {
                 server = new WatsonWsServer("localhost", 8081, false);
-                if (!string.IsNullOrWhiteSpace(settings.BrimeName)) handlers.Add(new BrimeChatHandler(settings.BrimeName, this));
+                if (!string.IsNullOrWhiteSpace(settings.BrimeName)) handlers.Add(new BrimeChatHandler(this, settings));
                 if (settings.ConnectTwitch) handlers.Add(new TwitchChatHandler(this, settings));
                 if (settings.ConnectTrovo) handlers.Add(new TrovoChatHandler(this));
                 if (settings.ConnectYouTube) handlers.Add(new YoutubeChatHandler(this));
@@ -194,7 +193,7 @@ namespace MultiChatServer {
             }
         }
 
-        private List<ChatHandler> handlers = new List<ChatHandler>();
+        private readonly List<ChatHandler> handlers = new List<ChatHandler>();
         public bool ForceViewUpdate { get; private set; }
         protected static readonly string VIEW_FORMAT = "{{\"type\": \"VIEWERCOUNT\", \"viewerCount\": {0} }}";
         private bool isRunningViewCount = false;
@@ -221,15 +220,16 @@ namespace MultiChatServer {
                                     ForceViewUpdate = false;
                                 }
                                 loopCount++;
-                                loopCount = loopCount % updateCount;
+                                loopCount %= updateCount;
                                 Thread.Sleep(5000);
                             } catch (Exception e) {
                                 Logger.Trace(e.ToString());
                             }
                         }
-                    }));
-                    t.Priority = ThreadPriority.BelowNormal;
-                    t.IsBackground = true;
+                    })) {
+                        Priority = ThreadPriority.BelowNormal,
+                        IsBackground = true
+                    };
                     t.Start();
                 }
             }

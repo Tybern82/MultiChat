@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -12,7 +13,7 @@ namespace BrimeAPI.com.brimelive.api {
         private readonly int maxThreads;
         private int availThreads;
 
-        private Semaphore localSemaphore;
+        private readonly Semaphore localSemaphore;
 
         /// <summary>
         /// Constructs a semaphore with an automatic reset thread count. This is used to control Rate Limiting.
@@ -66,7 +67,7 @@ namespace BrimeAPI.com.brimelive.api {
 
         private RateLimitedRequestHandler() {}
 
-        private ResetSemaphore rateLimiter = new ResetSemaphore(5, 5, 1000);    // starts with 5 requests, has a maximum of 5 requests
+        private readonly ResetSemaphore rateLimiter = new ResetSemaphore(5, 5, 1000);    // starts with 5 requests, has a maximum of 5 requests
 
         /// <summary>
         /// Perform the given API request, using the given parameters. This method will wait to ensure that no more then 5 requests
@@ -74,15 +75,16 @@ namespace BrimeAPI.com.brimelive.api {
         /// </summary>
         /// <param name="request">full URL for API request</param>
         /// <param name="requestMode">request mode (either GET or POST)</param>
+        /// <param name="headers">headers to add into the WebRequest, will be used to add Client-ID as header instead of Query parameter</param>
         /// <param name="postBody">data to use for POST request, generally empty string</param>
         /// <returns>processed response to API request</returns>
-        public BrimeAPIResponse doRequest(string request, BrimeRequestMode requestMode, string[] headers, string postBody) {
+        public BrimeAPIResponse doRequest(string request, BrimeRequestMode requestMode, KeyValuePair<string,string>[] headers, string postBody) {
             rateLimiter.Wait(); // make sure we're not overloading the rate-limiter
 
             // Create the request, including any provided Headers
             WebRequest req = WebRequest.Create(request);
-            foreach (string item in headers)
-                req.Headers.Add(item);
+            foreach (KeyValuePair<string,string> item in headers)
+                req.Headers.Add(item.Key, item.Value);
 
             // Only send data if this is a POST request.
             if (requestMode == BrimeRequestMode.POST) {
@@ -91,9 +93,8 @@ namespace BrimeAPI.com.brimelive.api {
                 req.ContentType = "application/json";
                 req.ContentLength = data.Length;
 
-                using (var stream = req.GetRequestStream()) {
-                    stream.Write(data, 0, data.Length);
-                }
+                using var stream = req.GetRequestStream(); 
+                stream.Write(data, 0, data.Length);
             }
 
             // Get response from API

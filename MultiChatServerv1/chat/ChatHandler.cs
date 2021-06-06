@@ -19,24 +19,33 @@ namespace MultiChatServer.chat {
         private ChatServer ChatServer { get; set; }
         public static int Timeout { get; set; } = 30000;
 
-        protected static readonly string CHAT_FORMAT = "{{\"type\": \"CHAT\", \"sender\": {{\"displayname\": {0}, \"color\": {1}, \"badges\": {2}}}, \"emotes\": {3}, \"message\": {4}, \"mstimeout\": {5} }}";
+        protected static readonly string CHAT_FORMAT = "{{\"type\": \"CHAT\", \"sender\": {{\"displayname\": {0}, \"color\": {1}, \"badges\": {2}}}, \"emotes\": {3}, \"message\": {4}, \"mstimeout\": {5}, \"messageID\": {6} }}";
         protected static readonly string FOLLOW_FORMAT = "{{\"type\": \"FOLLOW\", \"username\": {0}, \"mstimeout\": {1} }}";
         protected static readonly string SUB_FORMAT = "{{\"type\": \"SUBSCRIBE\", \"username\": {0}, \"isResub\": {1}, \"isGift\": {2}, \"months\": {3}, \"mstimeout\": {4} }}";
         protected static readonly string SPEC_FORMAT = "{{\"type\": \"ALERT\", \"alert\": {0}, \"mstimeout\": {1} }}";
+        protected static readonly string CHAT_CLEAR = "{{ \"type\": \"CLEAR\", \"messageID\": {0} }}";
 
         protected static readonly string DEFAULT_COLOR = "#FFFFFF";
 
         public bool isConnected { get; set; } = false;
 
-        public void doChatMessage(string sender, string message, string[] emotes, string[] badges, string color) {
+        public void doChatMessage(string sender, string message, string[] emotes, string[] badges, string color, string messageID) {
 
             string msg = string.Format(CHAT_FORMAT,
-                JsonConvert.ToString(sender),   // msg.Sender.DisplayName
-                JsonConvert.ToString(color),         // msg.sender.color
-                JSONUtil.ToString(badges),                      // msg.Sender.Badges (array of img link)
-                emotes.MakeJSONArray(),               // msg.Emotes
-                JsonConvert.ToString(message),
-                JsonConvert.ToString(Timeout)                   // default 30s timeout
+                sender.ToJSONString(),
+                color.ToJSONString(),
+                badges.ToJSONString(),
+                emotes.MakeJSONArray(),
+                message.ToJSONString(),
+                Timeout.ToJSONString(),
+                messageID.ToJSONString()
+                );
+            ChatServer.send(msg);
+        }
+
+        public void doClearMessage(string messageID) {
+            string msg = string.Format(CHAT_CLEAR,
+                messageID.ToJSONString()
                 );
             ChatServer.send(msg);
         }

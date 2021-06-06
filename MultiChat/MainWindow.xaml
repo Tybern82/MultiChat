@@ -32,7 +32,7 @@
             <Label Content="Channel Name:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
             <Label Content="Channel ID:" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" />
             <TextBox Name="txtChannelName" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" ToolTip="Channel Name" TextChanged="txtChannelName_TextChanged" />
-            <TextBox Name="txtChannelID" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" IsEnabled="False" ToolTip="Channel ID (part before '=' of stream key)" TextChanged="txtChannelID_TextChanged" />
+            <TextBox Name="txtChannelID" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" ToolTip="Channel ID (part before '=' of stream key)" TextChanged="txtChannelID_TextChanged" />
         </Grid>
         <Separator Grid.Row="1" Grid.Column="0" />
         <Grid Name="grdTwitch" Grid.Row="2" Grid.Column="0">

@@ -19,7 +19,7 @@ namespace MultiChatServer.chat {
     public class TrovoChatHandler : ChatHandler {
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private static string clientID = "8FMjuk785AX4FMyrwPTU3B8vYvgHWN33";
+        private static readonly string clientID = "8FMjuk785AX4FMyrwPTU3B8vYvgHWN33";
         public static readonly List<OAuthClientScopeEnum> scopes = new List<OAuthClientScopeEnum>()
         {
             OAuthClientScopeEnum.chat_connect,
@@ -103,9 +103,10 @@ namespace MultiChatServer.chat {
                                             offset++;
                                         }
                                     }
-                                }));
-                                t.Priority = ThreadPriority.BelowNormal;
-                                t.IsBackground = true;
+                                })) {
+                                    Priority = ThreadPriority.BelowNormal,
+                                    IsBackground = true
+                                };
                                 t.Start();
                             }
                         }
@@ -121,7 +122,15 @@ namespace MultiChatServer.chat {
                 string[] emotes = new string[0];
                 string[] badges = new string[1];
                 badges[0] = "http://localhost:8080/TrovoLogo.png";
-                doChatMessage(m.nick_name, m.content, emotes, badges, DEFAULT_COLOR);
+                doChatMessage(m.nick_name, m.content, emotes, badges, DEFAULT_COLOR, "TROVO:"+message.eid);
+
+                if (m.type == ChatMessageTypeEnum.FollowAlert) {
+                    Logger.Trace("TrovoFollowAlert: " + m.content);
+                    doFollow(m.nick_name);
+                } else if (m.type == ChatMessageTypeEnum.SubscriptionAlert) {
+                    Logger.Trace("TrovoSubAlert: " + m.content);
+                    doSubscribe(m.nick_name, false, false, -1);
+                }
             }
         }
 

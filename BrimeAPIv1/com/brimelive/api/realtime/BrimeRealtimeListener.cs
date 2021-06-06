@@ -15,6 +15,7 @@ namespace BrimeAPI.com.brimelive.api.realtime {
         public void onJoin(string username);
         public void onLeave(string username);
         public void onChat(BrimeChatMessage chatMessage);
+        public void onDeleteChat(string messageID);
         public void onSubscribe(string username, string userId, bool isResub);
     }
 }

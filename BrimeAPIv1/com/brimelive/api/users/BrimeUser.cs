@@ -31,19 +31,19 @@ namespace BrimeAPI.com.brimelive.api.users {
 
         public BrimeUser(JToken jsonData) {
             string? curr = jsonData.Value<string>("_id");
-            UserID = (curr == null) ? "" : curr;
+            UserID = curr ?? "";
 
             curr = jsonData.Value<string>("username");
-            Username = (curr == null) ? "" : curr;
+            Username = curr ?? "";
 
             curr = jsonData.Value<string>("displayname");
-            DisplayName = (curr == null) ? "" : curr;
+            DisplayName = curr ?? "";
 
             curr = jsonData.Value<string>("avatar");
-            Avatar = (curr == null) ? "" : curr;
+            Avatar = curr ?? "";
 
             curr = jsonData.Value<string>("color");
-            Color = (curr == null) ? "" : curr;
+            Color = curr ?? "";
 
             JArray? roles = jsonData.Value<JArray>("roles");
             Roles = new List<string>();

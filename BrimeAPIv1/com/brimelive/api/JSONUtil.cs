@@ -119,7 +119,7 @@ namespace BrimeAPI.com.brimelive.api {
         /// <summary>
         /// Convert the given <c>int</c> value to its JSON equivalent
         /// </summary>
-        /// <param name="b">value to process</param>
+        /// <param name="i">value to process</param>
         /// <returns>JSON equivalent of value</returns>
         public static string ToJSONString(this int i) {
             return JsonConvert.ToString(i);
@@ -129,7 +129,7 @@ namespace BrimeAPI.com.brimelive.api {
         /// <summary>
         /// Convert the given <c>object</c> value to its JSON equivalent
         /// </summary>
-        /// <param name="b">value to process</param>
+        /// <param name="o">value to process</param>
         /// <returns>JSON equivalent of value</returns>
         public static string ToJSONString(this object? o) {
             return JsonConvert.ToString(o);
@@ -139,7 +139,7 @@ namespace BrimeAPI.com.brimelive.api {
         /// <summary>
         /// Convert the given <c>Uri</c> value to its JSON equivalent
         /// </summary>
-        /// <param name="b">value to process</param>
+        /// <param name="uri">value to process</param>
         /// <returns>JSON equivalent of value</returns>
         public static string ToJSONString(this Uri uri) {
             return uri.AbsoluteUri.ToJSONString();

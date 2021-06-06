@@ -73,6 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="com\brimelive\api\BrimeAPI.cs" />
     <Compile Include="com\brimelive\api\errors\BrimeAPIError.cs" />
     <Compile Include="com\brimelive\api\BrimeAPIRequest.cs" />
     <Compile Include="com\brimelive\api\BrimeAPIResponse.cs" />

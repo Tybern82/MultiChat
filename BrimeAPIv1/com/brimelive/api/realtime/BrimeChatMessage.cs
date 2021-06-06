@@ -15,6 +15,7 @@ namespace BrimeAPI.com.brimelive.api.realtime {
         public string ID { get; private set; }
         public string ChannelID { get; private set; }
         public string Message { get; private set; }
+        public string RichContents { get; private set; }
         public BrimeUser Sender { get; private set; }
         public Dictionary<string, BrimeChatEmote> Emotes { get; private set; } = new Dictionary<string, BrimeChatEmote>();
         public DateTime Timestamp { get; private set; }
@@ -26,13 +27,16 @@ namespace BrimeAPI.com.brimelive.api.realtime {
                 Logger.Info("Notice: " + __notice);
 
             string? curr = message.Value<string>("channelID");
-            ChannelID = (curr == null) ? "" : curr;
+            ChannelID = curr ?? "";
 
             curr = message.Value<string>("_id");
-            ID = (curr == null) ? "" : curr;
+            ID = curr ?? "";
 
             curr = message.Value<string>("message");
-            Message = (curr == null) ? "" : curr;
+            Message = curr ?? "";
+
+            curr = message.Value<string>("richContents");   // used by BrimeBot
+            RichContents = curr ?? "";
 
             JToken? sender = message["sender"];
             Sender = (sender == null) ? new BrimeUser() : new BrimeUser(sender);
@@ -52,7 +56,11 @@ namespace BrimeAPI.com.brimelive.api.realtime {
                     }
                 }
             }
-            Timestamp = message.Value<DateTime>("timestamp");
+            try {
+                Timestamp = message.Value<DateTime>("timestamp");
+            } catch (Exception) {
+                Timestamp = new DateTime(message.Value<Int64>("timestamp"));
+            }
         }
 
         public override string ToString() {
@@ -87,4 +95,4 @@ namespace BrimeAPI.com.brimelive.api.realtime {
             return string.Format(BrimeChatMessage.IMAGE_URL_FORMAT, EmoteID, "3x");
         }
     }
-}
+} 
