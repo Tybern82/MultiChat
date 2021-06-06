@@ -14,8 +14,9 @@
 
     ?darkmode = use darkmode display (black background)
     ?nofade   = ignore message fading (disconnect message will still auto-fade)
+    ?modView  = controls how deleted messages are handled (if present, will mark but not remove; if absent, will just remove the message)
          
-When used in OBS, recommended to set your Browser Dock to: http://localhost:8080?nofade while your Browser Source for
+ModView option is only valid for Chat page. When used in OBS, recommended to set your Browser Dock to: http://localhost:8080?nofade while your Browser Source for
 display on stream would normally just be: http://localhost:8080
 
 Until option is added to the GUI, add bot account names to "ignoreNames" in %AppData%\Roaming\MultiChat.json to have 
