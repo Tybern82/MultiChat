@@ -119,7 +119,7 @@ namespace MultiChatServer.chat {
 
         private void Chat_OnChatMessageReceived(object sender, ChatMessageContainerModel message) {
             foreach (ChatMessageModel m in message.chats) {
-                string[] emotes = new string[0];
+                ChatEmote[] emotes = new ChatEmote[0];
                 string[] badges = new string[1];
                 badges[0] = "http://localhost:8080/TrovoLogo.png";
                 doChatMessage(m.nick_name, m.content, emotes, badges, DEFAULT_COLOR, "TROVO:"+message.eid);

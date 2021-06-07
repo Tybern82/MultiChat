@@ -67,13 +67,15 @@ namespace BrimeAPI.com.brimelive.api {
                 Errors = new List<BrimeAPIError>();
             }
             // Log a warning if any error identified.
-            Logger.Warn(() => {
-                return String.Join<BrimeAPIError>(", ", Errors);
-            });
+            if (Errors.Count > 0) {
+                Logger.Warn(() => {
+                    return String.Join<BrimeAPIError>(", ", Errors);
+                });
+            }
 
             // Identify whether there is any Notice in the API response. By default this will be logged.
             string? notice = apiResponse.Value<string>("__notice");
-            __Notice = (notice == null) ? "" : notice;
+            __Notice = notice ?? "";
             if (!string.IsNullOrWhiteSpace(__Notice)) Logger.Info(() => { return "API-NOTICE: " + __Notice; });
         }
     }

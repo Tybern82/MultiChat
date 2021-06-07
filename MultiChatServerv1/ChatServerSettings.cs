@@ -99,33 +99,23 @@ namespace MultiChatServer {
         /// </summary>
         public List<string> IgnoreChatNames { get; private set; }
 
-
-        private readonly string JSON_FORMAT = "{{ \n" +
-            "    \"brimeName\": {0}, \n" +
-            "    \"brimeChannelID\": {1}, \n" +
-            "    \"connectTwitch\": {2}, \n" +
-            "    \"connectTrovo\": {3}, \n" +
-            "    \"connectYouTube\": {4}, \n" +
-            "    \"showLog\": {5}, \n" +
-            "    \"ignoreNames\": {6}, \n" +
-            "    \"clientID\": {7} \n" +
-            "}}";
-
         /// <summary>
         /// Convert settings back to JSON object to use when saving to settings file.
         /// </summary>
         /// <returns>JSON entity containing curent settings</returns>
         public string ToJSON() {
-            return string.Format(JSON_FORMAT,
-                BrimeName.ToJSONString(),
-                BrimeChannelID.ToJSONString(),
-                ConnectTwitch.ToJSONString(),
-                ConnectTrovo.ToJSONString(),
-                ConnectYouTube.ToJSONString(),
-                ShowLog.ToJSONString(),
-                IgnoreChatNames.ToJSONString(),
-                BrimeAPI.com.brimelive.api.BrimeAPI.ClientID.ToJSONString()
-                );
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{\n")
+                .Append(BrimeName.toJSON("brimeName")).Append(", \n")
+                .Append(BrimeChannelID.toJSON("brimeChannelID")).Append(", \n")
+                .Append(ConnectTwitch.toJSON("connectTwitch")).Append(", \n")
+                .Append(ConnectTrovo.toJSON("connectTrovo")).Append(", \n")
+                .Append(ConnectYouTube.toJSON("connectYouTube")).Append(", \n")
+                .Append(ShowLog.toJSON("showLog")).Append(", \n")
+                .Append(IgnoreChatNames.toJSON<string>("ignoreNames")).Append(", \n")
+                .Append(BrimeAPI.com.brimelive.api.BrimeAPI.ClientID.toJSON("clientID"))
+                .Append("}");
+            return _result.ToString();
         }
     }
 }

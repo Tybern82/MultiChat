@@ -12,7 +12,7 @@ namespace BrimeAPI.com.brimelive.api.users {
     /// </summary>
     public class TotalUsersRequest : BrimeAPIRequest<int> {
 
-        private static readonly string GET_USERS_REQUEST = "/v1/users"; ///v1/users
+        private static readonly string GET_USERS_REQUEST = "/users"; ///v1/users
         
         /// <summary>
         /// Create a new instance. No parameters required for this request.

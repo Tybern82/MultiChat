@@ -71,6 +71,15 @@ namespace BrimeAPI.com.brimelive.api.realtime {
                                 l.onSubscribe(subscriber ?? "", subscriberID ?? "", true);
                             break;
 
+                        case "raid_notice": {
+                                string? raidingChannel = data.Value<string>("raidingChannel");
+                                string? raidingChannelID = data.Value<string>("raidingChannelID");
+                                int viewers = data.Value<int>("viewers");
+                                foreach (BrimeRealtimeListener l in listeners)
+                                    l.onRaid(raidingChannel ?? "", raidingChannelID ?? "", viewers);
+                                break;
+                            }
+
                         default:
                             break;
                     }

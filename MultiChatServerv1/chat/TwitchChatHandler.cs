@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using BrimeAPI.com.brimelive.api;
 using Newtonsoft.Json.Linq;
 using StreamingClient.Base.Util;
 using Twitch.Base;
@@ -112,7 +113,7 @@ namespace MultiChatServer.chat {
                                 while (server.RunServer) {
                                     Thread.Sleep(30000);
                                     // Get updated list, and compare with existing
-                                    Logger.Trace("Detecting new Twitch followers");
+                                    // Logger.Trace("Detecting new Twitch followers");
                                     foreach (var follower in twitchAPI.NewAPI.Users.GetFollows(null, user.id, int.MaxValue).Result) {
                                         if (!fIDs.Contains(follower.from_id)) {
                                             Logger.Trace("Found new Twitch follower: " + follower.from_name);
@@ -181,7 +182,7 @@ namespace MultiChatServer.chat {
         }
 
         private static void Chat_OnUserListReceived(object sender, ChatUsersListPacketModel packet) {
-            Logger.Trace("Initial Twitch chat: " + BrimeAPI.com.brimelive.api.JSONUtil.ToJSONString(packet.UserLogins));
+            Logger.Trace("Initial Twitch chat: " + packet.UserLogins.toJSON());
             currentUserList.AddRange(packet.UserLogins);
         }
 
@@ -195,16 +196,14 @@ namespace MultiChatServer.chat {
             currentUserList.Remove(packet.UserLogin);
         }
 
-        private static readonly string EMOTE_FORMAT = "{{ \"name\": \"{0}\", \"link\": \"https://static-cdn.jtvnw.net/emoticons/v2/{1}/default/dark/1.0\" }}";
-
         private void Chat_OnMessageReceived(object sender, ChatMessagePacketModel packet) {
-            List<string> emotes = new List<string>();
+            List<ChatEmote> emotes = new List<ChatEmote>();
             foreach (long e in packet.EmotesDictionary.Keys) {
                 string setID = e.ToString();
                 List<Tuple<int, int>> items = packet.EmotesDictionary[e];
                 foreach (Tuple<int,int> i in items) {
                     string ident = packet.Message.Substring(i.Item1, i.Item2 - i.Item1 + 1);
-                    emotes.Add(string.Format(EMOTE_FORMAT, ident, setID));
+                    emotes.Add(new ChatEmote(ident, string.Format("https://static-cdn.jtvnw.net/emoticons/v2/{0}/default/dark/1.0", setID)));
                 }
             }
 

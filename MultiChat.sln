@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiChatConsole-v1", "Mult
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiChat", "MultiChat\MultiChat.csproj", "{13147296-B6FA-474A-AE87-5338B99CAE83}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrimeAPI.Test", "BrimeAPI.Test\BrimeAPI.Test.csproj", "{55BB1F05-951B-49A2-B414-E78B79B942CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{13147296-B6FA-474A-AE87-5338B99CAE83}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13147296-B6FA-474A-AE87-5338B99CAE83}.Release|x86.ActiveCfg = Release|Any CPU
 		{13147296-B6FA-474A-AE87-5338B99CAE83}.Release|x86.Build.0 = Release|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Debug|x86.Build.0 = Debug|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Release|x86.ActiveCfg = Release|Any CPU
+		{55BB1F05-951B-49A2-B414-E78B79B942CB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

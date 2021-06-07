@@ -2,161 +2,257 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 using BrimeAPI.com.brimelive.api.categories;
+using BrimeAPI.com.brimelive.api.users;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace BrimeAPI.com.brimelive.api.streams {
-    public class BrimeStream {
+    /// <summary>
+    /// Identifies details about a stream
+    /// </summary>
+    public class BrimeStream : JSONConvertable {
 
+        /// <summary>
+        /// Stream ID
+        /// </summary>
         public string ID { get; private set; }
-        public string ChannelName { get; private set; }
-        public BrimeCategory Category { get; private set; }
-        public string Title { get; private set; }
-        public bool IsLive { get; private set; }
-        public DateTime PublishTime { get; private set; }
-        public int Bandwidth { get; private set; }
-        public List<string> Resolutions { get; private set; } = new List<string>();
-        public string VCodec { get; private set; }
-        public string ACodec { get; private set; }
-        public string Protocol { get; private set; }
 
-        public BrimeStream(JToken jsonData, BrimeCategory category) {
+        /// <summary>
+        /// Name of channel streaming
+        /// </summary>
+        public string ChannelName { get; private set; }
+
+        /// <summary>
+        /// Identifies the current streaming category
+        /// </summary>
+        public BrimeCategory Category { get; private set; }
+
+        /// <summary>
+        /// Identifies the current title of the stream
+        /// </summary>
+        public string Title { get; private set; }
+
+        /// <summary>
+        /// Identify whether this stream is currently live
+        /// </summary>
+        public bool IsLive { get; private set; }
+
+        /// <summary>
+        /// Identify the time this stream started
+        /// </summary>
+        public DateTime PublishTime { get; private set; }
+
+        /// <summary>
+        /// Identify the available streaming sources
+        /// </summary>
+        public List<BrimeStreamSource> Streams { get; private set; }
+
+        /// <summary>
+        /// Identify the user currently broadcasting this stream
+        /// </summary>
+        public BrimeUser BroadcastingUser { get; private set; }
+
+        /// <summary>
+        /// Identify the URL of the stream thumbnail
+        /// </summary>
+        public Uri ThumbnailURL { get; private set; }
+
+        /// <summary>
+        /// Create new instance, overriding the loaded category with the provided value
+        /// </summary>
+        /// <param name="jsonData">JSON data to process</param>
+        /// <param name="category">Category to set</param>
+        public BrimeStream(JToken jsonData, BrimeCategory category) : this(jsonData) {
+            this.Category = category;
+        }
+
+        /// <summary>
+        /// Create new instance, loading data from the given JSON data
+        /// </summary>
+        /// <param name="jsonData">JSON data to process</param>
+        public BrimeStream(JToken jsonData) {
             string? curr = jsonData.Value<string>("_id");
-            ID = (curr == null) ? "" : curr;
+            ID = curr ?? "";
 
             curr = jsonData.Value<string>("channel");
-            ChannelName = (curr == null) ? "" : curr;
+            ChannelName = curr ?? "";
+
+            JToken? category = jsonData.Value<JToken>("category");
+            Category = (category == null) ? new BrimeCategory() : new BrimeCategory(category);
 
             curr = jsonData.Value<string>("title");
-            Title = (curr == null) ? "" : curr;
+            Title = curr ?? "";
 
             IsLive = jsonData.Value<bool>("isLive");
 
-            DateTime? dt = jsonData.Value<DateTime>("publishTime");
+            DateTime? dt;
+            try {
+                dt = jsonData.Value<DateTime>("publishTime");
+            } catch (Exception) {
+                dt = new DateTime(jsonData.Value<Int64>("publishTime"));
+            }
             if (dt == null) {
                 PublishTime = DateTime.Now;
             } else {
                 PublishTime = (DateTime)dt;
             }
 
-            // curr = jsonData.Value<string>("publishTime");
-            // PublishTime = (curr == null) ? DateTime.UtcNow : DateTime.Parse(curr);
-
-            Bandwidth = jsonData.Value<int>("bandwidth");
-
-            JArray? resolutions = jsonData.Value<JArray>("resolutions");
-            if (resolutions != null) {
-                foreach (string? s in resolutions) {
-                    if (s != null) Resolutions.Add(s);
+            JArray? streams = jsonData.Value<JArray>("streams");
+            if (streams != null) {
+                Streams = new List<BrimeStreamSource>(streams.Count);
+                foreach (JToken s in streams) {
+                    Streams.Add(new BrimeStreamSource(s));
                 }
+            } else {
+                Streams = new List<BrimeStreamSource>();
             }
 
-            curr = jsonData.Value<string>("vcodec");
-            VCodec = (curr == null) ? "" : curr;
+            JToken? bUser = jsonData.Value<JToken>("broadcastingUser");
+            BroadcastingUser = (bUser != null) ? new BrimeUser(bUser) : new BrimeUser();
 
-            curr = jsonData.Value<string>("acodec");
-            ACodec = (curr == null) ? "" : curr;
-
-            curr = jsonData.Value<string>("protocol");
-            Protocol = (curr == null) ? "" : curr;
-            this.Category = category;
+            curr = jsonData.Value<string>("streamThumbnailUrl");
+            ThumbnailURL = (curr != null) ? new Uri(curr) : new Uri("./");
         }
 
-        public BrimeStream(JToken jsonData) {
-            string? curr = jsonData.Value<string>("_id");
-            ID = (curr == null) ? "" : curr;
-
-            curr = jsonData.Value<string>("channel");
-            ChannelName = (curr == null) ? "" : curr;
-
-            curr = jsonData.Value<string>("title");
-            Title = (curr == null) ? "" : curr;
-
-            IsLive = jsonData.Value<bool>("isLive");
-
-            curr = jsonData.Value<string>("publishTime");
-            PublishTime = (curr == null) ? DateTime.UtcNow : DateTime.Parse(curr);
-
-            Bandwidth = jsonData.Value<int>("bandwidth");
-
-            JArray? resolutions = jsonData.Value<JArray>("resolutions");
-            if (resolutions != null) {
-                foreach (string? s in resolutions) {
-                    if (s != null) Resolutions.Add(s);
-                }
-            }
-
-            curr = jsonData.Value<string>("vcodec");
-            VCodec = (curr == null) ? "" : curr;
-
-            curr = jsonData.Value<string>("acodec");
-            ACodec = (curr == null) ? "" : curr;
-
-            curr = jsonData.Value<string>("protocol");
-            Protocol = (curr == null) ? "" : curr;
-
-            JToken? category = jsonData.Value<JToken>("category");
-            Category = (category == null) ? new BrimeCategory() : new BrimeCategory(category);
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(ID.toJSON("_id")).Append(", ")
+                .Append(ChannelName.toJSON("channel")).Append(", ")
+                .Append(Category.toJSON("category")).Append(", ")
+                .Append(Title.toJSON("title")).Append(", ")
+                .Append(IsLive.toJSON("isLive")).Append(", ")
+                .Append(PublishTime.Ticks.toJSON("publishTime")).Append(", ")
+                .Append(Streams.toJSON<BrimeStreamSource>("streams")).Append(", ")
+                .Append(BroadcastingUser.toJSON("broadcastingUser")).Append(", ")
+                .Append(ThumbnailURL.toJSON("streamThumbnailUrl"))
+                .Append("}");
+            return _result.ToString();
         }
 
         public override string ToString() {
-            string format = "{{" +
-                "\"_id\": {0}," +
-                "\"channel\": {1}," +
-                "\"category\": {2}," +
-                "\"title\": {3}," +
-                "\"isLive\": {4}," +
-                "\"publishTime\": {5}," +
-                "\"bandwidth\": {6}," +
-                "\"resolutions\": {7}," +
-                "\"vcodec\": {8}," +
-                "\"acodec\": {9}," +
-                "\"protocol\": {10}" +
-                "}}";
-            return string.Format(format,
-                JsonConvert.ToString(ID),
-                JsonConvert.ToString(ChannelName),
-                Category.ToString(),
-                JsonConvert.ToString(Title),
-                JsonConvert.ToString(IsLive),
-                JsonConvert.ToString(PublishTime.ToUniversalTime().ToString("yyyy-mm-ddTHH:mm:ss.fffZ")),
-                JsonConvert.ToString(Bandwidth),
-                JSONUtil.ToString(Resolutions),
-                JsonConvert.ToString(VCodec),
-                JsonConvert.ToString(ACodec),
-                JsonConvert.ToString(Protocol)
-                );
+            return toJSON();
+        }
+    }
+
+    /// <summary>
+    /// Defines the stream details for an individual broadcast resolution
+    /// </summary>
+    public class BrimeStreamSource : JSONConvertable {
+
+        /// <summary>
+        /// Identify the bandwidth of this stream
+        /// </summary>
+        public int Bandwidth { get; private set; }
+
+        /// <summary>
+        /// Identify the resolution for the stream
+        /// </summary>
+        public string Resolution { get; private set; }
+
+        /// <summary>
+        /// Utility method to get X-Resolution
+        /// </summary>
+        public int ResolutionX {
+            get {
+                if (_resx == -1) {
+                    Match m = Regex.Match(Resolution, "(?<resx>[0-9]*)x(?<resy>[0-9]*)");
+                    if (m.Success) {
+                        int.TryParse(m.Groups["resx"].Value, out _resx);
+                        int.TryParse(m.Groups["resy"].Value, out _resy);
+                    }
+                }
+                return _resx;
+            }
+        }
+        private int _resx = -1;
+
+        /// <summary>
+        /// Utility method to get Y-Resolution
+        /// </summary>
+        public int ResolutionY { 
+            get {
+                if (_resy == -1) {
+                    Match m = Regex.Match(Resolution, "(?<resx>[0-9]*)x(?<resy>[0-9]*)");
+                    if (m.Success) {
+                        int.TryParse(m.Groups["resx"].Value, out _resx);
+                        int.TryParse(m.Groups["resy"].Value, out _resy);
+                    }
+                }
+                return _resy;
+            } 
+        }
+        private int _resy = -1;
+
+        /// <summary>
+        /// Identify the video codec
+        /// </summary>
+        public string VCodec { get; private set; }
+
+        /// <summary>
+        /// Identify the audio codec
+        /// </summary>
+        public string ACodec { get; private set; }
+
+        /// <summary>
+        /// Identify the broadcast protocol
+        /// </summary>
+        public string Protocol { get; private set; }
+
+        /// <summary>
+        /// Identify whether this is the original source resolution
+        /// </summary>
+        public bool IsSource { get; private set; }
+
+        /// <summary>
+        /// Create a new instance based on the given JSON data
+        /// </summary>
+        /// <param name="jsonData">JSON data to process</param>
+        public BrimeStreamSource(JToken jsonData) {
+            Bandwidth = jsonData.Value<int>("bandwidth");
+
+            string? curr = jsonData.Value<string>("resolution");
+            Resolution = curr ?? "";
+
+            curr = jsonData.Value<string>("vcodec");
+            VCodec = curr ?? "";
+
+            curr = jsonData.Value<string>("acodec");
+            ACodec = curr ?? "";
+
+            curr = jsonData.Value<string>("protocol");
+            Protocol = curr ?? "";
+
+            IsSource = jsonData.Value<bool>("isSource");
+        }
+
+        /// <summary>
+        /// Convert this object to JSON data
+        /// </summary>
+        /// <returns>JSON encoding of this object</returns>
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(Bandwidth.toJSON("bandwidth")).Append(", ")
+                .Append(Resolution.toJSON("resolution")).Append(", ")
+                .Append(VCodec.toJSON("vcodec")).Append(", ")
+                .Append(ACodec.toJSON("acodec")).Append(", ")
+                .Append(Protocol.toJSON("protocol")).Append(", ")
+                .Append(IsSource.toJSON("isSource"))
+                .Append("}");
+            return _result.ToString();
+        }
+
+        /// <inheritdoc />
+        public override string ToString() {
+            return toJSON();
         }
     }
 }
 
-/*
-    "streams":
-      {
-        "_id": "6050a4804b90bf0430aec1e2",
-        "channel": "geeken",
-        "category": {
-          "_id": "606e93525fa50e5780970135",
-          "genres": [],
-          "name": "Uncategorized",
-          "slug": "uncategorized",
-          "summary": "",
-          "cover": "",
-          "type": "entertainment"
-        },
-        "title": "It's BrimeTime™!",
-        "isLive": true,
-        "publishTime": "2021-03-26T19:25:53.000Z",
-        "bandwidth": 9154256,
-        "resolutions": [
-          "1280x720"
-        ],
-        "vcodec": "avc1.64001f",
-        "acodec": "mp4a.40.2",
-        "protocol": "RTMP"
-      }
-*/
 
 /* TODO: Updated structure
 "data": {

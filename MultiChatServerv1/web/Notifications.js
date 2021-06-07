@@ -27,6 +27,10 @@ function connect() {
             case "ALERT":
                 appendAlertMessage(msg);
                 break;
+
+            case "RAID":
+                appendRaidMessage(msg);
+                break;
         }
     };
 
@@ -87,6 +91,29 @@ function appendFollowMessage(msg) {
 
     message.classList = "message";
     message.innerHTML = "has followed";
+
+    div.appendChild(uname);
+    div.appendChild(message);
+
+    animateSlide(div);
+    if (doFade) disappear(div, msg.mstimeout);
+
+    document.body.style.bottom = "0px;";
+    document.getElementById("div").appendChild(div);
+}
+
+function appendRaidMessage(msg) {
+    const div = document.createElement("div");
+    const uname = document.createElement("span");
+    const message = document.createElement("span");
+
+    div.classList = "notification";
+
+    uname.innerText = msg.username;
+    uname.classList = "username";
+
+    message.classList = "message";
+    message.innerHTML = "has raided the channel with " + msg.viewerCount + " viewers";
 
     div.appendChild(uname);
     div.appendChild(message);

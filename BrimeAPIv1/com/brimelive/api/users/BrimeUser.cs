@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace BrimeAPI.com.brimelive.api.users {
-    public class BrimeUser {
+    public class BrimeUser : JSONConvertable {
 
         public string UserID { get; private set; }
         public string Username { get; private set; }
@@ -66,30 +66,21 @@ namespace BrimeAPI.com.brimelive.api.users {
         }
 
         public override string ToString() {
-            string format = "{{" +
-                "\"_id\": {0}, " +
-                "\"username\": {1}," +
-                "\"displayname\": {2}," +
-                "\"avatar\": {3}," +
-                "\"color\": {4}," +
-                "\"roles\": {5}," +
-                "\"badges\": {6}" +
-                "}}";
-            try {
-                return string.Format(
-                    format,
-                    JsonConvert.ToString(UserID),
-                    JsonConvert.ToString(Username),
-                    JsonConvert.ToString(DisplayName),
-                    JsonConvert.ToString(Avatar),
-                    JsonConvert.ToString(Color),
-                    JSONUtil.ToString(Roles.ToArray()),
-                    JSONUtil.ToString(Badges.ToArray())
-                    );
-            } catch (Exception e) {
-                Console.WriteLine(e);
-                return "";
-            }
+            return toJSON();
+        }
+
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(UserID.toJSON("_id")).Append(", ")
+                .Append(Username.toJSON("username")).Append(", ")
+                .Append(DisplayName.toJSON("displayname")).Append(", ")
+                .Append(Avatar.toJSON("avatar")).Append(", ")
+                .Append(Color.toJSON("color")).Append(", ")
+                .Append(Roles.toJSON<string>("roles")).Append(", ")
+                .Append(Badges.toJSON<string>("badges"))
+                .Append("}");
+            return _result.ToString();
         }
     }
 }

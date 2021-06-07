@@ -12,7 +12,7 @@ namespace BrimeAPI.com.brimelive.api.users {
     /// </summary>
     public class UserRequest : BrimeAPIRequest<BrimeUser> {
 
-        private static readonly string GET_USER_REQUEST = "/v1/user/{0}";     // /v1/user/:user
+        private static readonly string GET_USER_REQUEST = "/user/{0}";     // /v1/user/:user
 
         /// <summary>
         /// Records the user name / ID to request

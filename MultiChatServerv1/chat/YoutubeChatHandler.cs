@@ -79,7 +79,7 @@ namespace MultiChatServer.chat {
                 if (hasContent) msg = message.Snippet.DisplayMessage;
                 doChatMessage(message.AuthorDetails.DisplayName,
                     msg,
-                    new string[0],
+                    new ChatEmote[0],
                     badges,
                     DEFAULT_COLOR,
                     "YT:"+message.Id);

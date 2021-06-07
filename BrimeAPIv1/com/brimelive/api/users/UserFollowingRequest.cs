@@ -14,7 +14,7 @@ namespace BrimeAPI.com.brimelive.api.users {
     /// </summary>
     public class UserFollowingRequest : BrimeAPIRequest<UserFollowingResponse> {
 
-        private static readonly string GET_USER_FOLLOWING_REQUEST = "/v1/user/{0}/following";     // /v1/user/:user/following?live_only=true
+        private static readonly string GET_USER_FOLLOWING_REQUEST = "/user/{0}/following";     // /v1/user/:user/following?live_only=true
 
         /// <summary>
         /// Name of user to retrieve follower details.

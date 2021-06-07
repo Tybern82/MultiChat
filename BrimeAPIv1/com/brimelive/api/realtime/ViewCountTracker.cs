@@ -23,6 +23,8 @@ namespace BrimeAPI.com.brimelive.api.realtime {
         public void onDeleteChat(string messageID) { }
         /// <inheritdoc />
         public void onSubscribe(string username, string userID, bool isResub) { }
+        /// <inheritdoc />
+        public void onRaid(string channelName, string channelID, int viewerCount) { }
 
         /// <summary>
         /// Used to access the current view count. Public access to allow the RealtimeAPI to

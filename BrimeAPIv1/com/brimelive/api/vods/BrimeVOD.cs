@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Text;
 using BrimeAPI.com.brimelive.api.categories;
 using BrimeAPI.com.brimelive.api.errors;
 using Newtonsoft.Json.Linq;
@@ -174,7 +175,7 @@ namespace BrimeAPI.com.brimelive.api.vods {
      * </code></example>
      * </summary>
      */
-    public class BrimeVODStreamInfo {
+    public class BrimeVODStreamInfo : JSONConvertable {
 
         /// <summary>
         /// Error message when missing Title element in JSON data.
@@ -237,11 +238,13 @@ namespace BrimeAPI.com.brimelive.api.vods {
         /// Convert this record to its equivalent JSON formatted text.
         /// </summary>
         /// <returns><c>String</c> containing JSON formatted data for this record</returns>
-        public string ToJSONString() {
-            return new string[] {
-                Title.ToJSONString().ToJSONEntry(ID_Title),
-                Category.ToJSONString().ToJSONEntry(ID_Category)
-            }.ToJSONEntry();
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(Title.toJSON(ID_Title)).Append(", ")
+                .Append(Category.toJSON(ID_Category))
+                .Append("}");
+            return _result.ToString();
         }
 
         /// <summary>
@@ -249,7 +252,7 @@ namespace BrimeAPI.com.brimelive.api.vods {
         /// </summary>
         /// <returns>"BrimeVODStreamInfo: {JSON object}"</returns>
         public override string ToString() {
-            return "BrimeVODStreamInfo: " + ToJSONString();
+            return "BrimeVODStreamInfo: " + toJSON();
         }
     }
 }

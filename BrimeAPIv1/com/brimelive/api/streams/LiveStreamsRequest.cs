@@ -5,12 +5,19 @@ using BrimeAPI.com.brimelive.api.errors;
 using Newtonsoft.Json.Linq;
 
 namespace BrimeAPI.com.brimelive.api.streams {
+    /// <summary>
+    /// Load details of currently live streams
+    /// </summary>
     public class LiveStreamsRequest : BrimeAPIRequest<List<BrimeStream>> {
 
-        private static readonly string GET_LIVE_STREAMS_REQUEST = "/v1/streams";    // /v1/streams
+        private static readonly string GET_LIVE_STREAMS_REQUEST = "/streams";    // /v1/streams
 
+        /// <summary>
+        /// Create a new instance to request live streams
+        /// </summary>
         public LiveStreamsRequest() : base(GET_LIVE_STREAMS_REQUEST) { }    // No parameters
 
+        /// <inheritdoc />
         public override List<BrimeStream> getResponse() {
             BrimeAPIResponse response = doRequest();
             BrimeAPIError.ThrowException(response);

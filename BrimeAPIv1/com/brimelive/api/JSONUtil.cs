@@ -8,164 +8,14 @@ using Newtonsoft.Json.Linq;
 
 namespace BrimeAPI.com.brimelive.api {
 
+    public interface JSONConvertable {
+        public string toJSON();
+    }
+
     /// <summary>
     /// Helper class for performing conversions to JSON. 
     /// </summary>
     public static class JSONUtil {
-
-        /// <summary>
-        /// Convert the given array of <c>string</c> items into a JSON array element. Ensures that the items are correctly
-        /// converted to JSON strings as they are included.
-        /// </summary>
-        /// <param name="data">array of items to convert to JSON array of strings</param>
-        /// <returns>JSON array of provided string entries</returns>
-        public static string ToString(string[] data) {
-            StringBuilder _result = new StringBuilder();
-            _result.Append("[");
-            bool isFirst = true;
-            foreach (string s in data) {
-                if (!isFirst) _result.Append(", ");
-                _result.Append(JsonConvert.ToString(s));
-                isFirst = false;
-            }
-            _result.Append("]");
-            return _result.ToString();
-        }
-
-        /// <summary>
-        /// Convert the given list of <c>string</c> items into JSON array element. <br/>
-        /// See: <see cref="JSONUtil.ToString(string[])"/>
-        /// </summary>
-        /// <param name="data">list of items to convert to JSON array of strings</param>
-        /// <returns>JSON array of provided string entries</returns>
-        public static string ToString(List<string> data) {
-            StringBuilder _result = new StringBuilder();
-            _result.Append("[");
-            if (data.Count > 0) _result.Append(JsonConvert.ToString(data[0]));
-            for (int i = 1; i < data.Count; i++)
-                _result.Append(",").Append(JsonConvert.ToString(data[i]));
-            _result.Append("]");
-            return _result.ToString();
-        }
-
-        /// <summary>
-        /// Convert the given item into a new JSON entry. Assumes the value is already a valid JSON item.
-        /// </summary>
-        /// <param name="value">JSON body for the entry</param>
-        /// <param name="name">name for the entry</param>
-        /// <returns>"name": value</returns>
-        public static string ToJSONEntry(this string value, string name) {
-            return "\"" + name + "\": " + value;
-        }
-
-        /// <summary>
-        /// Collects the given set of items into a new composite entity. Assumes the items in the list are
-        /// already valid JSON entries.
-        /// </summary>
-        /// <param name="items">array of JSON items</param>
-        /// <returns>{ item[0], item[1],... item[n] }</returns>
-        public static string ToJSONEntry(this string[] items) {
-            StringBuilder _result = new StringBuilder();
-            _result.Append("{ ");
-            if (items.Length > 0) _result.Append(items[0]);
-            for (int i = 1; i < items.Length; i++)
-                _result.Append(", ").Append(items[i]);
-            _result.Append(" }");
-            return _result.ToString();
-        }
-
-        /// <summary>
-        /// Collects the given set of items into a new composite entity. Assumes the items in the list are
-        /// already valid JSON entries.
-        /// </summary>
-        /// <param name="items">list of JSON items</param>
-        /// <returns>{ item[0], item[1],... item[n] }</returns>
-        public static string TOJSONEntry(this List<string> items) {
-            StringBuilder _result = new StringBuilder();
-            _result.Append("{ ");
-            if (items.Count > 0) _result.Append(items[0]);
-            for (int i = 1; i < items.Count; i++)
-                _result.Append(", ").Append(items[i]);
-            _result.Append(" }");
-            return _result.ToString();
-        }
-
-        /// <summary>
-        /// Collect given set of items into an array. Assumes the items in the array are already valid JSON entries.
-        /// </summary>
-        /// <param name="items">array of JSON items</param>
-        /// <returns>[ item[0], item[1],... item[n] ]</returns>
-        public static string MakeJSONArray(this string[] items) {
-            StringBuilder _result = new StringBuilder();
-            _result.Append("[");
-            if (items.Length > 0) _result.Append(items[0]);
-            for (int i = 1; i < items.Length; i++) {
-                _result.Append(", ").Append(items[i]);
-            }
-            _result.Append("]");
-            return _result.ToString();
-        }
-
-        /// <summary>
-        /// Convert the given <c>bool</c> value to its JSON equivalent
-        /// </summary>
-        /// <param name="b">value to process</param>
-        /// <returns>JSON equivalent of value</returns>
-        public static string ToJSONString(this bool b) {
-            return JsonConvert.ToString(b);
-        }
-
-
-        /// <summary>
-        /// Convert the given <c>int</c> value to its JSON equivalent
-        /// </summary>
-        /// <param name="i">value to process</param>
-        /// <returns>JSON equivalent of value</returns>
-        public static string ToJSONString(this int i) {
-            return JsonConvert.ToString(i);
-        }
-
-
-        /// <summary>
-        /// Convert the given <c>object</c> value to its JSON equivalent
-        /// </summary>
-        /// <param name="o">value to process</param>
-        /// <returns>JSON equivalent of value</returns>
-        public static string ToJSONString(this object? o) {
-            return JsonConvert.ToString(o);
-        }
-
-
-        /// <summary>
-        /// Convert the given <c>Uri</c> value to its JSON equivalent
-        /// </summary>
-        /// <param name="uri">value to process</param>
-        /// <returns>JSON equivalent of value</returns>
-        public static string ToJSONString(this Uri uri) {
-            return uri.AbsoluteUri.ToJSONString();
-        }
-
-        /// <summary>
-        /// Wrapper to <c>ToString(string[])</c> - will convert calls to this over to this method then 
-        /// move body to this method and remove. <br />
-        /// See: <see cref="JSONUtil.ToString(string[])"/>
-        /// </summary>
-        /// <param name="data">array of items to convert to JSON array of strings</param>
-        /// <returns>[ "data[0]", "data[1]",... "data[n]" ]</returns>
-        public static string ToJSONString(this string[] data) {
-            return ToString(data);
-        }
-
-        /// <summary>
-        /// Wrapper to <c>ToString(List{string})</c> - will convert calls to this over to this method then 
-        /// move body to this method and remove. <br />
-        /// See: <see cref="JSONUtil.ToString(List{string})"/>
-        /// </summary>
-        /// <param name="data">array of items to convert to JSON array of strings</param>
-        /// <returns>[ "data[0]", "data[1]",... "data[n]" ]</returns>
-        public static string ToJSONString(this List<string> data) {
-            return ToString(data);
-        }
 
         /// <summary>
         /// Helper method to identify whether a JToken contains an entry for a specific named value.
@@ -175,6 +25,146 @@ namespace BrimeAPI.com.brimelive.api {
         /// <returns>true if the <c>JToken</c> contains an entry of this name, false otherwise</returns>
         public static bool HasValue(this JToken token, string value) {
             return (token[value] != null);
+        }
+
+        /// <summary>
+        /// Label the given value with provided name
+        /// </summary>
+        /// <param name="name">name to use for label</param>
+        /// <param name="value">JSON value to label</param>
+        /// <returns></returns>
+        private static string makeEntry(string name, string value) {
+            return "\"" + name + "\": " + value;
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON and label with given name
+        /// </summary>
+        /// <param name="o">value to convert to JSON</param>
+        /// <param name="name">name to use for label</param>
+        /// <returns>"name": {value:JSON}</returns>
+        public static string toJSON(this object o, string name) {
+            return makeEntry(name, o.toJSON());
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - use toJSON method if defined
+        /// </summary>
+        /// <param name="o">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON(this object o) {
+            if (o is JSONConvertable) {
+                return (o as JSONConvertable)?.toJSON() ?? "";
+            } else {
+                return JsonConvert.ToString(o);
+            }
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - calls the toJSON method
+        /// </summary>
+        /// <param name="j">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON(this JSONConvertable j) {
+            return j.toJSON();
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - uses JsonConvert.ToString
+        /// </summary>
+        /// <param name="i">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON(this int i) {
+            return JsonConvert.ToString(i);
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - uses JsonConvert.ToString
+        /// </summary>
+        /// <param name="l">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON(this long l) {
+            return JsonConvert.ToString(l);
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - uses JsonConvert.ToString
+        /// </summary>
+        /// <param name="b">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON(this bool b) {
+            return JsonConvert.ToString(b);
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - uses JsonConvert.ToString
+        /// </summary>
+        /// <param name="s">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON(this string s) {
+            return JsonConvert.ToString(s);
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - uses JsonConvert.ToString on the AbsoluteUri
+        /// </summary>
+        /// <param name="uri">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON(this Uri uri) {
+            return uri.AbsoluteUri.toJSON();
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - constructs a JSON array
+        /// </summary>
+        /// <param name="l">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON<T>(this List<T> l) {
+            string _result = "[";
+            if (l.Count > 0) {
+                _result += l[0]?.toJSON();
+                for (int i = 1; i < l.Count; i++) {
+                    _result += ", " + l[i]?.toJSON();
+                }
+            }
+            _result += "]";
+            return _result;
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - constructs a JSON array
+        /// </summary>
+        /// <param name="l">parameter to convert</param>
+        /// <param name="name">name to use to label JSON</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON<T>(this List<T> l, string name) {
+            return makeEntry(name, toJSON<T>(l));
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - constructs a JSON array
+        /// </summary>
+        /// <param name="l">parameter to convert</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON<T>(this T[] l) {
+            string _result = "[";
+            if (l.Length > 0) {
+                _result += l[0]?.toJSON();
+                for (int i = 1; i < l.Length; i++)
+                    _result += ", " + l[i]?.toJSON();
+            }
+            _result += "]";
+            return _result;
+        }
+
+        /// <summary>
+        /// Convert parameter to JSON - constructs a JSON array
+        /// </summary>
+        /// <param name="l">parameter to convert</param>
+        /// <param name="name">name to use to label JSON</param>
+        /// <returns>JSON value of parameter</returns>
+        public static string toJSON<T>(this T[] l, string name) {
+            return makeEntry(name, toJSON<T>(l));
         }
     }
 }

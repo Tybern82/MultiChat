@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 namespace BrimeAPI.com.brimelive.api.users {
     public class UserClipsRequest : BrimeAPIRequest<UserClipsResponse> {
 
-        private static readonly string GET_CLIPS_FOR_USER_REQUEST = "/v1/user/{0}/clips"; // /v1/user/:user/clips
+        private static readonly string GET_CLIPS_FOR_USER_REQUEST = "/user/{0}/clips"; // /v1/user/:user/clips
 
         public string UserName { get; private set; }
 

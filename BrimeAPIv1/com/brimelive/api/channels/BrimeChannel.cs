@@ -54,29 +54,24 @@ namespace BrimeAPI.com.brimelive.api.channels {
             }
         }
 
-        private static readonly string FORMAT = "{{" +
-            "\"_id\": {0}," +
-            "\"channel\": {1}," +
-            "\"category\": {2}," +
-            "\"title\": {3}," +
-            "\"isLive\": {4}," +
-            "\"followerCount\": {5}," +
-            "\"subscriberCount\": {6}," +
-            "\"description\": {7}," +
-            "\"owners\": {8}" +
-            "}}";
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(ID.toJSON("_id")).Append(", ")
+                .Append(ChannelName.toJSON("channel")).Append(", ")
+                .Append(Category.toJSON("category")).Append(", ")
+                .Append(Title.toJSON("title")).Append(", ")
+                .Append(IsLive.toJSON("isLive")).Append(", ")
+                .Append(FollowerCount.toJSON("followerCount")).Append(", ")
+                .Append(SubscriberCount.toJSON("subscriberCount")).Append(", ")
+                .Append(Description.toJSON("description")).Append(", ")
+                .Append(Owners.toJSON<string>("owners"))
+                .Append("}");
+            return _result.ToString();
+        }
 
         public override string ToString() {
-            return string.Format(FORMAT,
-                JsonConvert.ToString(ID),
-                JsonConvert.ToString(ChannelName),
-                Category,
-                JsonConvert.ToString(Title),
-                JsonConvert.ToString(IsLive),
-                JsonConvert.ToString(FollowerCount),
-                JsonConvert.ToString(SubscriberCount),
-                JsonConvert.ToString(Description),
-                JSONUtil.ToString(Owners));
+            return toJSON();
         }
     }
 }

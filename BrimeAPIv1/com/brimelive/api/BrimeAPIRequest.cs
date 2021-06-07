@@ -135,12 +135,11 @@ namespace BrimeAPI.com.brimelive.api {
         /// </summary>
         /// <returns>base website address for the currently selected API Endpoint</returns>
         protected string getAPIEndpoint() {
-            switch (BrimeAPI.APIEndpoint) {
-                case BrimeAPIEndpoint.PRODUCTION:   return "https://api.brimelive.com";
-                case BrimeAPIEndpoint.STAGING:      return "https://api-staging.brimelive.com/v1";
-                case BrimeAPIEndpoint.SANDBOX:
-                default:                            return "https://api-sandbox.brimelive.com";
-            }
+            return BrimeAPI.APIEndpoint switch {
+                BrimeAPIEndpoint.PRODUCTION => "https://api.brimelive.com",
+                BrimeAPIEndpoint.STAGING => "https://api-staging.brimelive.com/v1",
+                _ => "https://api-sandbox.brimelive.com",
+            };
         }
 
         /// <summary>

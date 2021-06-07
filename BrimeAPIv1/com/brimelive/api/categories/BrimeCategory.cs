@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using BrimeAPI.com.brimelive.api.errors;
 using Newtonsoft.Json.Linq;
 
@@ -9,7 +10,7 @@ namespace BrimeAPI.com.brimelive.api.categories {
     /// <summary>
     /// Identify the category for the stream
     /// </summary>
-    public class BrimeCategory {
+    public class BrimeCategory : JSONConvertable {
 
         /// <summary>
         /// Category Identifier
@@ -112,42 +113,27 @@ namespace BrimeAPI.com.brimelive.api.categories {
             Type = "";
         }
 
-        /// <inheritdoc />
-        public override string ToString() {
-            List<string> items = new List<string>(8) {
-                ID.ToJSONString().ToJSONEntry("_id"),
-                Genres.ToJSONString().ToJSONEntry("genres"),
-                Name.ToJSONString().ToJSONEntry("name"),
-                Slug.ToJSONString().ToJSONEntry("slug"),
-                Summary.ToJSONString().ToJSONEntry("summary"),
-                CoverURL.ToJSONString().ToJSONEntry("cover"),
-                Type.ToJSONString().ToJSONEntry("type")
-            };   // up to 8 items in list
-            if (IGDB != -1) items.Add(IGDB.ToJSONString().ToJSONEntry("igdb_id"));
-            return items.TOJSONEntry();
-
-            /*            
-             string format = "{{" +
-                            "\"_id\": {0}," +
-                            "\"igdb_id\": {1}," +
-                            "\"genres\": {2}," +
-                            "\"name\": {3}," +
-                            "\"slug\": {4}," +
-                            "\"summary\": {5}," +
-                            "\"cover\": {6}," +
-                            "\"type\": {7}" +
-                            "}}";
-            return string.Format(format,
-                            ID.ToJSONString(),
-                            IGDB.ToJSONString(),
-                            Genres.ToJSONString(),
-                            Name.ToJSONString(),
-                            Slug.ToJSONString(),
-                            Summary.ToJSONString(),
-                            CoverURL.ToJSONString(),
-                            Type.ToJSONString()); 
-            */
+        /// <summary>
+        /// Convert this object to JSON data
+        /// </summary>
+        /// <returns>JSON encoding of this object</returns>
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(ID.toJSON("_id")).Append(", ")
+                .Append(Genres.toJSON<string>("genres")).Append(", ")
+                .Append(Name.toJSON("name")).Append(", ")
+                .Append(Slug.toJSON("slug")).Append(", ")
+                .Append(Summary.toJSON("summary")).Append(", ")
+                .Append(CoverURL.toJSON("cover")).Append(", ")
+                .Append(Type.toJSON("type"));
+            if (IGDB != -1) _result.Append(", ").Append(IGDB.toJSON("igdb_id"));
+            _result.Append("}");
+            return _result.ToString();
         }
+
+        /// <inheritdoc />
+        public override string ToString() => toJSON();
     }
 }
 

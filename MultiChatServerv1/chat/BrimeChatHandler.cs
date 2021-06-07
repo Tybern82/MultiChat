@@ -70,16 +70,14 @@ namespace MultiChatServer.chat {
 
         public void onLeave(string username) { }
 
-        private static readonly string EMOTE_FORMAT = "{{ \"name\": \"{0}\", \"link\": \"{1}\" }}";
-
         public void onChat(BrimeChatMessage chatMessage) {
             string[] badges = new string[chatMessage.Sender.Badges.Count + 1];
             badges[0] = "http://localhost:8080/BrimeLogo.png";
             chatMessage.Sender.Badges.ToArray().CopyTo(badges, 1);
 
-            List<string> emotes = new List<string>(chatMessage.Emotes.Count);
+            List<ChatEmote> emotes = new List<ChatEmote>(chatMessage.Emotes.Count);
             foreach (string e in chatMessage.Emotes.Keys) {
-                emotes.Add(string.Format(EMOTE_FORMAT, e, chatMessage.Emotes[e].get1xImageUrl()));
+                emotes.Add(new ChatEmote(e, chatMessage.Emotes[e].get1xImageUrl()));
             }
 
             doChatMessage(chatMessage.Sender.DisplayName, chatMessage.Message, emotes.ToArray(), badges, chatMessage.Sender.Color, "BRIME:"+chatMessage.ID);
@@ -91,6 +89,10 @@ namespace MultiChatServer.chat {
 
         public void onSubscribe(string username, string userId, bool isResub) {
             doSubscribe(username, isResub, false, -1);
+        }
+
+        public void onRaid(string channelName, string channelID, int viewerCount) {
+            doRaid(channelName, viewerCount);
         }
     }
 }
