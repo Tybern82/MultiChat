@@ -92,9 +92,6 @@ namespace BrimeAPI.com.brimelive.api.clips {
             if (curr == null) throw new BrimeAPIMalformedResponse("Missing Thumbnail URL in clip response");
             ClipThumbnailURL = new Uri(curr);
 
-            long clipDate = jsonData.Value<long>("clipDate");
-            ClipDate = DateTimeOffset.FromUnixTimeSeconds(clipDate).DateTime;
-
             curr = jsonData.Value<string>("channelID");
             if (curr == null) throw new BrimeAPIMalformedResponse("Missing Channel ID in clip response");
             ChannelID = curr;
@@ -103,13 +100,22 @@ namespace BrimeAPI.com.brimelive.api.clips {
             if (stream == null) throw new BrimeAPIMalformedResponse("Missing stream information in clip response");
             Stream = new StreamDetails(stream);
 
+            Upvotes = jsonData.Value<int>("upvotes");
+
+            // TODO: Update when timestamp changes to milliseconds
+            // Ensure toJSON is also updated
+
+            long clipDate = jsonData.Value<long>("clipDate");
+            ClipDate = DateTimeOffset.FromUnixTimeSeconds(clipDate).DateTime;
+            // ClipDate = DateTimeOffset.FromUnixTimeMilliseconds(clipDate).DateTime;
+
             long sectionStart = jsonData.Value<long>("sectionStart");
             SectionStart = DateTimeOffset.FromUnixTimeSeconds(sectionStart).DateTime;
+            // SectionStart = DateTimeOffset.FromUnixTimeMilliseconds(sectionStart).DateTime;
 
             long sectionEnd = jsonData.Value<long>("sectionEnd");
             SectionEnd = DateTimeOffset.FromUnixTimeSeconds(sectionEnd).DateTime;
-
-            Upvotes = jsonData.Value<int>("upvotes");
+            // SectionEnd = DateTimeOffset.FromUnixTimeMilliseconds(sectionEnd).DateTime;
         }
 
         /// <inheritdoc />
@@ -122,10 +128,13 @@ namespace BrimeAPI.com.brimelive.api.clips {
                 .Append(ClipVideoURL.AbsoluteUri.toJSON("clipVideoUrl"))
                 .Append(ClipThumbnailURL.AbsoluteUri.toJSON("clipThumbnailUrl"))
                 .Append(new DateTimeOffset(ClipDate).ToUnixTimeSeconds().toJSON("clipDate"))
+                // .Append(new DateTimeOffset(ClipDate).ToUnixTimeMilliseconds().toJSON("clipDate"))
                 .Append(ChannelID.toJSON("channelID"))
                 .Append(Stream.toJSON("stream"))
                 .Append(new DateTimeOffset(SectionStart).ToUnixTimeSeconds().toJSON("sectionStart"))
                 .Append(new DateTimeOffset(SectionEnd).ToUnixTimeSeconds().toJSON("sectionEnd"))
+                // .Append(new DateTimeOffset(SectionStart).ToUnixTimeMilliseconds().toJSON("sectionStart"))
+                // .Append(new DateTimeOffset(SectionEnd).ToUnixTimeMilliseconds().toJSON("sectionEnd"))
                 .Append(Upvotes.toJSON("upvotes"))
                 .Append("}");
             return _result.ToString();
