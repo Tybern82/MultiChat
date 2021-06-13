@@ -63,6 +63,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="Test.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BrimeAPIv1\BrimeAPI-v1.csproj">

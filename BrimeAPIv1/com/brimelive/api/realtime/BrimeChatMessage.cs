@@ -59,7 +59,7 @@ namespace BrimeAPI.com.brimelive.api.realtime {
             try {
                 Timestamp = message.Value<DateTime>("timestamp");
             } catch (Exception) {
-                Timestamp = new DateTime(message.Value<Int64>("timestamp"));
+                Timestamp = DateTimeOffset.FromUnixTimeSeconds(message.Value<long>("timestamp")).DateTime;
             }
         }
 

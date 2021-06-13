@@ -1,131 +1,183 @@
 ﻿#nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.Text;
-using Newtonsoft.Json;
+using BrimeAPI.com.brimelive.api.categories;
+using BrimeAPI.com.brimelive.api.errors;
 using Newtonsoft.Json.Linq;
 
 namespace BrimeAPI.com.brimelive.api.clips {
-    public class BrimeClip {
+    /// <summary>
+    /// Identifies a single Clip made on a channel
+    /// </summary>
+    public class BrimeClip : JSONConvertable {
 
+        /// <summary>
+        /// Unique identifier for this clip
+        /// </summary>
         public string ID { get; private set; }
-        public string URL { get; private set; }
-        public string ClipName { get; private set; }
-        public string ClipVideoURL { get; private set; }
-        public DateTime ClipDate { get; private set; }
-        public string ChannelID { get; private set; }
-        public StreamDetails Stream { get; private set; }
-        public DateTime SectionStart { get; private set; }
-        public DateTime SectionEnd { get; private set; }
-        public string ClipperID { get; private set; }
-        public string Clipper { get; private set; }
 
+        /// <summary>
+        /// URL used to retrieve this clip
+        /// </summary>
+        public Uri URL { get; private set; }
+
+        /// <summary>
+        /// Name given to this clip
+        /// </summary>
+        public string ClipName { get; private set; }
+
+        /// <summary>
+        /// URL to the video for this clip
+        /// </summary>
+        public Uri ClipVideoURL { get; private set; }
+
+        /// <summary>
+        /// URL to a thumbnail for this clip
+        /// </summary>
+        public Uri ClipThumbnailURL { get; private set; }
+
+        /// <summary>
+        /// Date this clip was created
+        /// </summary>
+        public DateTime ClipDate { get; private set; }
+
+        /// <summary>
+        /// ID of the channel where this clip was taken from
+        /// </summary>
+        public string ChannelID { get; private set; }
+
+        /// <summary>
+        /// Information about the original stream being clipped
+        /// </summary>
+        public StreamDetails Stream { get; private set; }
+
+        /// <summary>
+        /// Timestamp of the start of this clip
+        /// </summary>
+        public DateTime SectionStart { get; private set; }
+
+        /// <summary>
+        /// Timestamp of the end of this clip
+        /// </summary>
+        public DateTime SectionEnd { get; private set; }
+
+        /// <summary>
+        /// Counter of the number of upvotes on this clip
+        /// </summary>
+        public int Upvotes { get; private set; }
+
+        /// <summary>
+        /// Create a new instance, processing the given response data
+        /// </summary>
+        /// <param name="jsonData">JSON response to process</param>
         public BrimeClip(JToken jsonData) {
             string? curr = jsonData.Value<string>("_id");
-            ID = (curr == null) ? "" : curr;
+            if (curr == null) throw new BrimeAPIMalformedResponse("Missing _id on clip response");
+            ID = curr;
 
             curr = jsonData.Value<string>("url");
-            URL = (curr == null) ? "" : curr;
+            if (curr == null) throw new BrimeAPIMalformedResponse("Missing URL in clip response");
+            URL = new Uri(curr);
 
             curr = jsonData.Value<string>("clipName");
-            ClipName = (curr == null) ? "" : curr;
+            if (curr == null) throw new BrimeAPIMalformedResponse("Missing name for clip in response");
+            ClipName = curr;
 
             curr = jsonData.Value<string>("clipVideoUrl");
-            ClipVideoURL = (curr == null) ? "" : curr;
+            if (curr == null) throw new BrimeAPIMalformedResponse("Missing Video URL in clip response");
+            ClipVideoURL = new Uri(curr);
 
-            int clipDate = jsonData.Value<int>("clipDate");
-            ClipDate = new DateTime(clipDate, DateTimeKind.Utc);
+            curr = jsonData.Value<string>("clipThumbnailUrl");
+            if (curr == null) throw new BrimeAPIMalformedResponse("Missing Thumbnail URL in clip response");
+            ClipThumbnailURL = new Uri(curr);
+
+            long clipDate = jsonData.Value<long>("clipDate");
+            ClipDate = DateTimeOffset.FromUnixTimeSeconds(clipDate).DateTime;
 
             curr = jsonData.Value<string>("channelID");
-            ChannelID = (curr == null) ? "" : curr;
+            if (curr == null) throw new BrimeAPIMalformedResponse("Missing Channel ID in clip response");
+            ChannelID = curr;
 
             JToken? stream = jsonData.Value<JToken>("stream");
-            Stream = (stream == null) ? new StreamDetails() : new StreamDetails(stream);
+            if (stream == null) throw new BrimeAPIMalformedResponse("Missing stream information in clip response");
+            Stream = new StreamDetails(stream);
 
-            int sectionStart = jsonData.Value<int>("sectionStart");
-            SectionStart = new DateTime(sectionStart, DateTimeKind.Utc);
+            long sectionStart = jsonData.Value<long>("sectionStart");
+            SectionStart = DateTimeOffset.FromUnixTimeSeconds(sectionStart).DateTime;
 
-            int sectionEnd = jsonData.Value<int>("sectionEnd");
-            SectionEnd = new DateTime(sectionEnd, DateTimeKind.Utc);
+            long sectionEnd = jsonData.Value<long>("sectionEnd");
+            SectionEnd = DateTimeOffset.FromUnixTimeSeconds(sectionEnd).DateTime;
 
-            curr = jsonData.Value<string>("clipperID");
-            ClipperID = (curr == null) ? "" : curr;
-
-            curr = jsonData.Value<string>("clipper");
-            Clipper = (curr == null) ? "" : curr;
+            Upvotes = jsonData.Value<int>("upvotes");
         }
 
-        public BrimeClip() {
-            this.ID = "";
-            this.URL = "";
-            this.ClipName = "";
-            this.ClipVideoURL = "";
-            this.ClipDate = DateTime.Now;
-            this.ChannelID = "";
-            this.Stream = new StreamDetails();
-            this.SectionStart = DateTime.Now;
-            this.SectionEnd = DateTime.Now;
-            this.ClipperID = "";
-            this.Clipper = "";
+        /// <inheritdoc />
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(ID.toJSON("_id"))
+                .Append(URL.AbsoluteUri.toJSON("url"))
+                .Append(ClipName.toJSON("clipName"))
+                .Append(ClipVideoURL.AbsoluteUri.toJSON("clipVideoUrl"))
+                .Append(ClipThumbnailURL.AbsoluteUri.toJSON("clipThumbnailUrl"))
+                .Append(new DateTimeOffset(ClipDate).ToUnixTimeSeconds().toJSON("clipDate"))
+                .Append(ChannelID.toJSON("channelID"))
+                .Append(Stream.toJSON("stream"))
+                .Append(new DateTimeOffset(SectionStart).ToUnixTimeSeconds().toJSON("sectionStart"))
+                .Append(new DateTimeOffset(SectionEnd).ToUnixTimeSeconds().toJSON("sectionEnd"))
+                .Append(Upvotes.toJSON("upvotes"))
+                .Append("}");
+            return _result.ToString();
         }
 
+        /// <inheritdoc />
         public override string ToString() {
-            string format = "{{" +
-                "\"_id\": {0}," +
-                "\"url\": {1}," +
-                "\"clipName\": {2}," +
-                "\"clipVideoURL\": {3}," +
-                "\"clipDate\": {4}," +
-                "\"channelID\": {5}," +
-                "\"stream\": {6}," +
-                "\"sectionStart\": {7}," +
-                "\"sectionEnd\": {8}," +
-                "\"clipperID\": {9}," +
-                "\"clipper\": {10}" +
-                "}}";
-            return string.Format(format,
-                JsonConvert.ToString(ID),
-                JsonConvert.ToString(URL),
-                JsonConvert.ToString(ClipName),
-                JsonConvert.ToString(ClipVideoURL),
-                JsonConvert.ToString(ClipDate.Ticks),
-                JsonConvert.ToString(ChannelID),
-                Stream.ToString(),
-                JsonConvert.ToString(SectionStart.Ticks),
-                JsonConvert.ToString(SectionEnd.Ticks),
-                JsonConvert.ToString(ClipperID),
-                JsonConvert.ToString(Clipper)
-                );
+            return toJSON();
         }
     }
 
-    public class StreamDetails {
-        public string Category { get; private set; }
+    /// <summary>
+    /// Contains the stream information for the stream where the clip was taken
+    /// </summary>
+    public class StreamDetails : JSONConvertable {
+        /// <summary>
+        /// Category the original stream was broadcast under
+        /// </summary>
+        public BrimeCategory Category { get; private set; }
+
+        /// <summary>
+        /// Original title of the stream
+        /// </summary>
         public string Title { get; private set; }
 
+        /// <summary>
+        /// Create a new instance based on the given JSON data
+        /// </summary>
+        /// <param name="jsonData">JSON data to process</param>
         public StreamDetails(JToken jsonData) {
-            string? curr = jsonData.Value<string>("category");
-            Category = (curr == null) ? "" : curr;
+            string? curr = jsonData.Value<string>("title");
+            if (curr == null) throw new BrimeAPIMalformedResponse("Missing title in stream information for clip");
+            Title = curr;
 
-            curr = jsonData.Value<string>("title");
-            Title = (curr == null) ? "" : curr;
+            JToken? category = jsonData.Value<JToken>("category");
+            if (category == null) throw new BrimeAPIMalformedResponse("Missing category in stream information for clip");
+            Category = new BrimeCategory(category);
         }
 
-        public StreamDetails() {
-            this.Category = "";
-            this.Title = "";
+        /// <inheritdoc />
+        public string toJSON() {
+            StringBuilder _result = new StringBuilder();
+            _result.Append("{")
+                .Append(Title.toJSON("title"))
+                .Append(Category.toJSON("category"))
+                .Append("}");
+            return _result.ToString();
         }
 
+        /// <inheritdoc />
         public override string ToString() {
-            string format = "{{" +
-                "\"category\": {0}," +
-                "\"title\": {1}" +
-                "}}";
-            return string.Format(format,
-                JsonConvert.ToString(Category),
-                JsonConvert.ToString(Title)
-                );
+            return toJSON();
         }
     }
 }
@@ -147,4 +199,32 @@ namespace BrimeAPI.com.brimelive.api.clips {
     "clipperID": "605a58d321489a6c4a78709d",
     "clipper": "llamafun"
   }
+
+{
+  "data": {
+    "_id": "607e67f1fb94b3cba84e80fb",
+    "url": "https://clips.brimelive.com/607e67f1fb94b3cba84e80fb",
+    "clipName": "Clipped by ItzLcyx",
+    "clipDate": 1618896882,
+    "clipVideoUrl": "https://content.brimecdn.com/brime/clip/6050a4804b90bf0430aec1e2/607e67f1fb94b3cba84e80fb",
+    "clipThumbnailUrl": "https://content.brimecdn.com/brime/clip/6050a4804b90bf0430aec1e2/607e67f1fb94b3cba84e80fb/thumbnail",
+    "channelID": "6050a4804b90bf0430aec1e2",
+    "stream": {
+      "title": "EXPERIMENTAL 120 FPS Stream",
+      "category": {
+        "_id": "606e8e43eb4c916b74360542",
+        "igdb_id": 126459,
+        "genres": [ "60568f1d5631c93404fe2eef", "60568f1d5631c93404fe2efa" ],
+        "name": "VALORANT",
+        "slug": "valorant",
+        "summary": "Imagine this: tactical shooter meets hypernatural powers. Everyone’s got guns and a unique set of abilities, so how do you beat someone with the speed of wind? Use your own moves to outplay them and beat them to the shot. VALORANT is a game for bold strategists who dare to make the unexpected play, because if it wins, it works.",
+        "cover": "https://images.igdb.com/igdb/image/upload/t_1080p/co2mvt.png",
+        "type": "videogame"
+      }
+    },
+    "sectionStart": 1618896852,
+    "sectionEnd": 1618896882,
+    "upvotes": 1
+  }
+}
 */

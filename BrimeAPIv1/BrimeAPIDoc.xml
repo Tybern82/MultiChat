@@ -654,6 +654,164 @@
         <member name="M:BrimeAPI.com.brimelive.api.channels.ChannelSubscriptionRequest.getResponse">
             <inheritdoc />
         </member>
+        <member name="T:BrimeAPI.com.brimelive.api.clips.BrimeClip">
+            <summary>
+            Identifies a single Clip made on a channel
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.ID">
+            <summary>
+            Unique identifier for this clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.URL">
+            <summary>
+            URL used to retrieve this clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.ClipName">
+            <summary>
+            Name given to this clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.ClipVideoURL">
+            <summary>
+            URL to the video for this clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.ClipThumbnailURL">
+            <summary>
+            URL to a thumbnail for this clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.ClipDate">
+            <summary>
+            Date this clip was created
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.ChannelID">
+            <summary>
+            ID of the channel where this clip was taken from
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.Stream">
+            <summary>
+            Information about the original stream being clipped
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.SectionStart">
+            <summary>
+            Timestamp of the start of this clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.SectionEnd">
+            <summary>
+            Timestamp of the end of this clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.BrimeClip.Upvotes">
+            <summary>
+            Counter of the number of upvotes on this clip
+            </summary>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.BrimeClip.#ctor(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Create a new instance, processing the given response data
+            </summary>
+            <param name="jsonData">JSON response to process</param>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.BrimeClip.toJSON">
+            <inheritdoc />
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.BrimeClip.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:BrimeAPI.com.brimelive.api.clips.StreamDetails">
+            <summary>
+            Contains the stream information for the stream where the clip was taken
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.StreamDetails.Category">
+            <summary>
+            Category the original stream was broadcast under
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.StreamDetails.Title">
+            <summary>
+            Original title of the stream
+            </summary>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.StreamDetails.#ctor(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Create a new instance based on the given JSON data
+            </summary>
+            <param name="jsonData">JSON data to process</param>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.StreamDetails.toJSON">
+            <inheritdoc />
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.StreamDetails.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest">
+            <summary>
+            Query for the clips associated with a given channel. Can be paged
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest.ChannelName">
+            <summary>
+            Identify the name of the channel to request clips from
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest.Since">
+            <summary>
+            Identify time period to start looking for clips (will produce only clips made after this date)
+            Defaults to '0' indicating clips from all time
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest.Limit">
+            <summary>
+            Identify how many clips to return in the list (between 1 and 150, default 50)
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest.Skip">
+            <summary>
+            Identify how many clips to skip before selecting the ones to return
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest.Sort">
+            <summary>
+            Identify what order to sort the clips. Defaults to Descending order (Newest to Oldest)
+            </summary>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest.#ctor(System.String)">
+            <summary>
+            Create a new request for the given channel name
+            </summary>
+            <param name="channelName">name of the channel to retrieve clips from</param>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.ChannelClipsRequest.getResponse">
+            <inheritdoc />
+        </member>
+        <member name="T:BrimeAPI.com.brimelive.api.clips.ClipInfoRequest">
+            <summary>
+            Queries for information on a particular clip
+            </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.clips.ClipInfoRequest.ClipID">
+            <summary>
+            ID of the clip to retrieve information about
+            </summary>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.ClipInfoRequest.#ctor(System.String)">
+            <summary>
+            Create a new request for information on the given clip
+            </summary>
+            <param name="clipID">ID of the clip to request</param>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.clips.ClipInfoRequest.getResponse">
+            <inheritdoc />
+        </member>
         <member name="T:BrimeAPI.com.brimelive.api.JSONUtil">
             <summary>
             Helper class for performing conversions to JSON. 
@@ -1128,6 +1286,20 @@
             <summary>
             Queries for a stream by the given channel and returns the data for that stream.
             </summary>
+        </member>
+        <member name="P:BrimeAPI.com.brimelive.api.streams.StreamRequest.ChannelName">
+            <summary>
+            Name of the channel to request current live stream information from
+            </summary>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.streams.StreamRequest.#ctor(System.String)">
+            <summary>
+            Create a new instance, requesting stream information for given channel
+            </summary>
+            <param name="channelName">name of the channel to request live stream information</param>
+        </member>
+        <member name="M:BrimeAPI.com.brimelive.api.streams.StreamRequest.getResponse">
+            <inheritdoc />
         </member>
         <member name="T:BrimeAPI.com.brimelive.api.users.TotalUsersRequest">
             <summary>

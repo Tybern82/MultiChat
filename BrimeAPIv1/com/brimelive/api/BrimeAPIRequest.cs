@@ -151,13 +151,14 @@ namespace BrimeAPI.com.brimelive.api {
             string _result = getAPIEndpoint();
             _result += string.Format(RequestFormat, RequestParameters.Invoke());
             bool hasQuery = _result.Contains("?");
-            foreach (System.Collections.Generic.KeyValuePair<string, string> param in QueryParameters.Invoke()) {
+            foreach (KeyValuePair<string, string> param in QueryParameters.Invoke()) {
                 _result += (hasQuery ? "&" : "?");
                 _result += param.Key + "=" + param.Value;
                 hasQuery = true;
             }
             // TODO: Remove this when using Client-ID header instead
             _result += (hasQuery ? "&" : "?") + "client_id=" + BrimeAPI.ClientID;
+            Logger.Trace("Query Request: <" + _result + ">");
             return _result;
         }
 

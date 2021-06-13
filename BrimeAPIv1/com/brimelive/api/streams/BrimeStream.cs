@@ -92,7 +92,7 @@ namespace BrimeAPI.com.brimelive.api.streams {
             try {
                 dt = jsonData.Value<DateTime>("publishTime");
             } catch (Exception) {
-                dt = new DateTime(jsonData.Value<Int64>("publishTime"));
+                dt = DateTimeOffset.FromUnixTimeMilliseconds(jsonData.Value<Int64>("publishTime")).DateTime;
             }
             if (dt == null) {
                 PublishTime = DateTime.Now;

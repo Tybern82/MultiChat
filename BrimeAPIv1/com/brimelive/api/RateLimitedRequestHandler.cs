@@ -27,18 +27,20 @@ namespace BrimeAPI.com.brimelive.api {
             this.localSemaphore = new Semaphore(avail, max);
 
             Thread t = new Thread(new ThreadStart(() => {
-                Thread.Sleep(timeout);
-                try {
-                    lock (this) {
-                        if (availThreads < maxThreads) {
-                            // Should only be releasing if items have been allocated
-                            localSemaphore.Release(maxThreads - availThreads);
-                            availThreads = maxThreads;
+                while (true) {
+                    Thread.Sleep(timeout);
+                    try {
+                        lock (this) {
+                            if (availThreads < maxThreads) {
+                                // Should only be releasing if items have been allocated
+                                localSemaphore.Release(maxThreads - availThreads);
+                                availThreads = maxThreads;
+                            }
                         }
-                    }
-                } catch (SemaphoreFullException) { }
+                    } catch (SemaphoreFullException) { }
+                }
             })) {
-                Priority = ThreadPriority.BelowNormal,
+                Priority = ThreadPriority.Lowest,
                 IsBackground = true
             };
             t.Start();
