@@ -36,3 +36,7 @@ Parameters to link chats:
     --version    Display version information.
     
 Type QUIT to close the multi-chat window (case-insensitive)
+
+<h2>Building</h2>
+
+To build this project, you will also need a copy of the BrimeAPI (https://github.com/Tybern82/BrimeAPI) library to link the MultiChatServer against.
