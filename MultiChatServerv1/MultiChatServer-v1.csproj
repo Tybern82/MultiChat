@@ -232,7 +232,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BrimeAPIv1\BrimeAPI-v1.csproj">
+    <ProjectReference Include="..\..\BrimeAPI\BrimeAPI-v1\BrimeAPI-v1.csproj">
       <Project>{9bbbf170-32a5-4012-b96d-09c5772a361f}</Project>
       <Name>BrimeAPI-v1</Name>
     </ProjectReference>
