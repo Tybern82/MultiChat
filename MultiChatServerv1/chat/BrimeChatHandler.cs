@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrimeAPI.com.brimelive.api;
 using BrimeAPI.com.brimelive.api.channels;
+using BrimeAPI.com.brimelive.api.emotes;
 using BrimeAPI.com.brimelive.api.errors;
 using BrimeAPI.com.brimelive.api.realtime;
 using Newtonsoft.Json;
@@ -77,7 +78,7 @@ namespace MultiChatServer.chat {
 
             List<ChatEmote> emotes = new List<ChatEmote>(chatMessage.Emotes.Count);
             foreach (string e in chatMessage.Emotes.Keys) {
-                emotes.Add(new ChatEmote(e, chatMessage.Emotes[e].get1xImageUrl()));
+                emotes.Add(new ChatEmote(e, BrimeEmote.getImageURL(chatMessage.Emotes[e].EmoteID, BrimeEmoteSize.X1)));
             }
 
             doChatMessage(chatMessage.Sender.DisplayName, chatMessage.Message, emotes.ToArray(), badges, chatMessage.Sender.Color, "BRIME:"+chatMessage.ID);

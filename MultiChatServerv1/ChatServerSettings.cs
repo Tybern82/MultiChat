@@ -42,8 +42,12 @@ namespace MultiChatServer {
             }
 
             curr = jsonData.Value<string>("clientID");
-            if (!string.IsNullOrWhiteSpace(curr)) 
+            // NOTE: Yes, this is a redundant check for null on curr, however this is included
+            //       since the compiler is unable to identify that curr is not-Null from just
+            //       the method call (lacking annotations in this .Net runtime.
+            if (!((curr == null) || string.IsNullOrWhiteSpace(curr))) {
                 BrimeAPI.com.brimelive.api.BrimeAPI.ClientID = curr;
+            }
         }
 
         /// <summary>
