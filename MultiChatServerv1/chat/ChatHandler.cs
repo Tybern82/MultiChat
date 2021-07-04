@@ -11,7 +11,7 @@ using WatsonWebsocket;
 
 namespace MultiChatServer.chat {
 
-    public class ChatEmote {
+    public class ChatEmote : JSONConvertable {
         public string Name { get; set; }
         public string Link { get; set; }
 

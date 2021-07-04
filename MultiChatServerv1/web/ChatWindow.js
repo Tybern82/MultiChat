@@ -73,10 +73,10 @@ function appendChatMessage(msg) {
     div.id = msg.messageID;
 
     uname.style.marginLeft = "5px";
-    uname.innerText = msg.sender.displayname + ": ";
+    uname.innerText = msg.sender + ": ";
     uname.classList = "username";
-    if (msg.sender.color !== "") {
-        uname.style.color = msg.sender.color;
+    if (msg.color !== "") {
+        uname.style.color = msg.color;
         // uname.style = "color: " + msg.sender.color + ";";
     }
 
@@ -97,7 +97,7 @@ function appendChatMessage(msg) {
     message.classList = "message"
     message.innerHTML = msg.message + " ";
 
-    msg.sender.badges.forEach((badge) => {
+    msg.badges.forEach((badge) => {
         let icon = document.createElement("img");
         icon.src = badge;
         icon.classList = "badge";
