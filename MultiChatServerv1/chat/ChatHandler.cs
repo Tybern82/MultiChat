@@ -46,6 +46,7 @@ namespace MultiChatServer.chat {
         public void doChatMessage(string sender, string message, ChatEmote[] emotes, string[] badges, string color, string messageID) {
             // "{{\"type\": \"CHAT\", \"sender\": {{\"displayname\": {0}, \"color\": {1}, \"badges\": {2}}}, \"emotes\": {3}, \"message\": {4}, \"mstimeout\": {5}, \"messageID\": {6} }}"
             StringBuilder _msg = new StringBuilder();
+            string emoteStr = emotes.toJSON<ChatEmote>("emotes");
             _msg.Append("{")
                 .Append("CHAT".toJSON("type")).Append(", ")
                 .Append(sender.toJSON("sender")).Append(", ")
